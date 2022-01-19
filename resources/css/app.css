@@ -1,3 +1,22 @@
+
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+.text-principal{
+    color:#103C6F;
+}
+
+.bg-principal{
+    background-color:#103C6F;
+}
+
+.text-secundario{
+    color:#fec92b;
+}
+.bg-secundario{
+    background-color:#fec92b;
+}
+.bg-principal2{
+    background-color:#1a4575;
+}
