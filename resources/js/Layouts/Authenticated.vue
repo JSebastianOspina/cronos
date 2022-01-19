@@ -16,43 +16,33 @@
                             <!-- Navigation Links -->
 
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                                <BreezeNavLink :href="route('dashboard')"
-                                               :active="route().current('dashboard')"
-                                               class="text-white">
+                                <BreezeNavLink :href="route('users.index')"
+                                               :active="route().current('users.index')">
                                     Administrar usuarios
-                                </BreezeNavLink>
-                            </div>
-
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"
-                            >
-                                <BreezeNavLink :href="route('dashboard')"
-                                               :active="route().current('dashboard')"
-                                               class="text-white">
-                                    Gestionar monitores
-                                </BreezeNavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"
-                            >
-                                <BreezeNavLink :href="route('dashboard')"
-                                               :active="route().current('dashboard')"
-                                               class="text-white">
-                                    Administrar usuarios
-                                </BreezeNavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex "
-                            >
-                                <BreezeNavLink :href="route('dashboard')"
-                                               :active="route().current('dashboard')">
-                                    Crear nuevo turno
                                 </BreezeNavLink>
                             </div>
 
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                                <BreezeNavLink :href="route('dashboard')"
-                                               :active="route().current('dashboard')">
-                                    Administrar turnos
+                                <BreezeNavLink :href="route('dependencies.index')"
+                                               :active="route().current('dependencies.index')">
+                                    Administrar dependencias
                                 </BreezeNavLink>
                             </div>
+
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                <BreezeNavLink :href="route('monitors.index')"
+                                               :active="route().current('monitors.index')">
+                                    Gestionar monitores
+                                </BreezeNavLink>
+                            </div>
+
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex ">
+                                <BreezeNavLink :href="route('dashboard')"
+                                               :active="route().current('dashboard')">
+                                    Reportes
+                                </BreezeNavLink>
+                            </div>
+
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
