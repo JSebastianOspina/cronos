@@ -33,6 +33,7 @@ Route::get('/dashboard', function () {
 // RUTAS DE USUARIOS
 
 Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+Route::post('users/roles', [\App\Http\Controllers\UserController::class, 'updateRole'])->name('users.roles.update');
 
 
 // RUTAS DE DEPENDENCIAS

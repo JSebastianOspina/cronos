@@ -37,8 +37,8 @@
                             </div>
 
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex ">
-                                <BreezeNavLink :href="route('dashboard')"
-                                               :active="route().current('dashboard')">
+                                <BreezeNavLink :href="route('reports.index')"
+                                               :active="route().current('reports.index')">
                                     Reportes
                                 </BreezeNavLink>
                             </div>

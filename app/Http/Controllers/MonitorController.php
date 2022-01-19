@@ -14,7 +14,7 @@ class MonitorController extends Controller
      */
     public function index()
     {
-        return Inertia::render('users/Index');
+        return Inertia::render('monitors/Index');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -10,11 +11,30 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return Inertia::render('users/Index');
+        $users = User::all();
+
+        return Inertia::render('users/Index', [
+            'users' => $users,
+        ]);
+
+    }
+
+    public function updateRole(Request $request)
+    {
+        $user = User::find($request->input('user_id'));
+        if ($user === null) {
+            return response()->json([
+                'error' => 'Usuario no encontrado'
+            ], 404);
+        }
+        $user->role = $request->input('role');
+        $user->save();
+
+        return response('',201);
+
     }
 
     /**

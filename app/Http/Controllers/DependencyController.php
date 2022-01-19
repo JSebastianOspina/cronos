@@ -14,7 +14,7 @@ class DependencyController extends Controller
      */
     public function index()
     {
-        return Inertia::render('users/Index');
+        return Inertia::render('dependencies/Index');
     }
 
     /**
