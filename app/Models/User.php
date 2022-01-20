@@ -47,4 +47,21 @@ class User extends Authenticatable
     /*  public function dependencies(){
           return $this->belongsToMany();
       }*/
+
+    public function records()
+    {
+        return $this->hasMany(Record::class);
+    }
+
+    public function planeations()
+    {
+        return $this->hasMany(Planeation::class);
+    }
+
+    public function dependencies()
+    {
+        return $this->belongsToMany(Dependency::class);
+    }
+
+
 }

@@ -84,14 +84,12 @@
 <script>
 import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue'
 import {Head} from '@inertiajs/inertia-vue3';
-import {Link} from '@inertiajs/inertia-vue3'
 import Swal from 'sweetalert2';
 
 export default {
     components: {
         BreezeAuthenticatedLayout,
         Head,
-        Link
     },
     methods: {
         async changeRole(role, user_id) {
