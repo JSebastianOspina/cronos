@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDependenciyUserTable extends Migration
+class CreateDependencyUserTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateDependenciyUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('dependenciy_user', function (Blueprint $table) {
+        Schema::create('dependency_user', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->unsignedBigInteger('user_id');
@@ -31,6 +31,6 @@ class CreateDependenciyUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('dependenciy_user');
+        Schema::dropIfExists('dependency_user');
     }
 }

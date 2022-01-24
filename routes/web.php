@@ -39,7 +39,8 @@ Route::post('users/roles', [\App\Http\Controllers\UserController::class, 'update
 // RUTAS DE DEPENDENCIAS
 
 Route::get('dependencies', [\App\Http\Controllers\DependencyController::class, 'index'])->name('dependencies.index');
-
+Route::post('dependencies', [\App\Http\Controllers\DependencyController::class, 'store'])->name('dependencies.store');
+Route::delete('dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'destroy'])->name('dependencies.destroy');
 
 // RUTAS DE MONITORES
 
