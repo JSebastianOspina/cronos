@@ -60,7 +60,7 @@ class User extends Authenticatable
 
     public function dependencies()
     {
-        return $this->belongsToMany(Dependency::class);
+        return $this->belongsToMany(Dependency::class)->withPivot('role');
     }
 
 

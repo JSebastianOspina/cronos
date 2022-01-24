@@ -12,6 +12,6 @@ class Dependency extends Model
     protected $guarded = [];
 
     public function users (){
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot('role');
     }
 }

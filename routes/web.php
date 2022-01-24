@@ -36,12 +36,21 @@ Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->nam
 Route::post('users/roles', [\App\Http\Controllers\UserController::class, 'updateRole'])->name('users.roles.update');
 
 
-// RUTAS DE DEPENDENCIAS
-
+// -----------------------------------------  RUTAS DE DEPENDENCIAS -----------------------------------------------
+//Gestion global de dependencias
 Route::get('dependencies', [\App\Http\Controllers\DependencyController::class, 'index'])->name('dependencies.index');
 Route::post('dependencies', [\App\Http\Controllers\DependencyController::class, 'store'])->name('dependencies.store');
 Route::delete('dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'destroy'])->name('dependencies.destroy');
 
+//Gestion de usuario dentro de la dependencia
+Route::get('/dependencies/{dependency}/users', [\App\Http\Controllers\DependencyController::class, 'usersIndex'])
+    ->name('dependencies.users.index');
+Route::post('/dependencies/{dependency}/users', [\App\Http\Controllers\DependencyController::class, 'usersStore'])
+    ->name('dependencies.users.store');
+Route::delete('/dependencies/{dependency}/users/{user}', [\App\Http\Controllers\DependencyController::class, 'usersDelete'])
+    ->name('dependencies.users.destroy');
+
+// -----------------------------------------  ACABA RUTAS DE DEPENDENCIAS -------------------------------------------
 // RUTAS DE MONITORES
 
 Route::get('monitors', [\App\Http\Controllers\MonitorController::class, 'index'])->name('monitors.index');
