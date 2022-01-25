@@ -10,7 +10,7 @@
                             <h1 class="text-2xl font-bold">Gestionar dependencias</h1>
                             <button
                                 @click="openCreateUserModal"
-                                class="p-2 text-center bg-principal text-white mx-1 rounded">Crear nueva dependencia
+                                class="p-2 text-center bg-principal text-white mx-1 rounded">Crear nueva
                             </button>
                         </div>
 
@@ -41,7 +41,7 @@
                                     {{ dependency.users.length }}
                                 </td>
                                 <td class="px-6 align-middle whitespace-nowrap p-4 text-center ">
-                                    <Link :href="'/admin/dependencies/'+dependency.id+'/users'"
+                                    <Link :href="route('dependencies.users.index', {dependency:dependency.id})"
                                           class="p-2 text-center bg-green-600 text-white mx-1 rounded">Gestionar
                                         usuarios
                                     </Link>
@@ -92,11 +92,19 @@ export default {
 
         openCreateUserModal: async function () {
             const {value} = await Swal.fire({
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Crear dependencia',
                 title: 'Crear una nueva dependencia',
                 input: 'text',
                 inputLabel: 'Nombre de la dependencia',
                 inputPlaceholder: 'Ayudas educativas'
             })
+
+
+            if (value === undefined) {
+                return;
+            }
 
             //Conseguir URL
             let url = route('dependencies.store');

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDependenciesTable extends Migration
+class CreateGoogleCalendarsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,13 @@ class CreateDependenciesTable extends Migration
      */
     public function up()
     {
-        Schema::create('dependencies', function (Blueprint $table) {
+        Schema::create('google_calendars', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->text('google_calendar_id');
+            $table->text('url');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('dependency_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
-
         });
     }
 
@@ -28,6 +30,6 @@ class CreateDependenciesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('dependencies');
+        Schema::dropIfExists('google_calendars');
     }
 }

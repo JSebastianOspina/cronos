@@ -51,6 +51,14 @@ Route::delete('/dependencies/{dependency}/users/{user}', [\App\Http\Controllers\
     ->name('dependencies.users.destroy');
 
 // -----------------------------------------  ACABA RUTAS DE DEPENDENCIAS -------------------------------------------
+
+// -----------------------------------------  RUTAS DE SCHEDULES ----------------------------------------------------
+Route::get('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'userSchedules'])->name('users.schedules.show');
+Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'StoreUserSchedule'])->name('users.schedules.store');
+
+
+// -----------------------------------------  ACABA RUTAS DE SCHEDULES -----------------------------------------------
+
 // RUTAS DE MONITORES
 
 Route::get('monitors', [\App\Http\Controllers\MonitorController::class, 'index'])->name('monitors.index');

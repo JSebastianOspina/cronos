@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -53,14 +54,31 @@ class User extends Authenticatable
         return $this->hasMany(Record::class);
     }
 
-    public function planeations()
+    public function schedules()
     {
-        return $this->hasMany(Planeation::class);
+        return $this->hasMany(Schedule::class,'monitor_id','id');
     }
 
     public function dependencies()
     {
         return $this->belongsToMany(Dependency::class)->withPivot('role');
+    }
+
+    public function getSupervisedDepencyId()
+    {
+        $supervisorRoleId = 1;
+
+        $dependency_user = DB::table('dependency_user')
+            ->where('user_id', $this->id)
+            ->where('role', $supervisorRoleId)
+            ->first();
+
+        if ($dependency_user === null) {
+            return null;
+        }
+
+        return $dependency_user->dependency_id;
+
     }
 
 

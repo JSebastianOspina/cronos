@@ -17,14 +17,16 @@ class CreateSchedulesTable extends Migration
             $table->id();
             $table->time('start_hour');
             $table->time('end_hour');
-            $table->enum('type',['unique','periodic']);
-            $table->timestamp('date')->nullable();
+            $table->enum('type', ['unique', 'periodic']);
+            $table->date('date')->nullable();
             $table->tinyInteger('day_of_week')->nullable();
+            $table->text('google_event_id')->nullable();
             $table->unsignedBigInteger('monitor_id');
             $table->foreign('monitor_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('supervisor_id');
             $table->foreign('supervisor_id')->references('id')->on('users')->onDelete('cascade');
-
+            $table->foreignId('dependency_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 

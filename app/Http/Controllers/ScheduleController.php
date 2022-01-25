@@ -2,30 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Dependency;
+use App\Models\Schedule;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class MonitorController extends Controller
+class ScheduleController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
+     * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $user = auth()->user();
-        $dependencyId = $user->getSupervisedDepencyId();
-
-        if ($dependencyId === null) {
-            return 'No administras ninguna dependencia';
-        }
-
-        $dependency = Dependency::find($dependencyId);
-        $monitors = $dependency->getMonitors();
-        return Inertia::render('monitors/Index', [
-            'monitors' => $monitors,
-        ]);
+        //
     }
 
     /**
@@ -92,5 +84,40 @@ class MonitorController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+    public function userSchedules(User $user, Request $request)
+    {
+        $schedules = $user->schedules;
+
+        return Inertia::render('schedules/UserSchedules', [
+            'schedules' => $schedules,
+            'user' => $user
+        ]);
+    }
+
+    public function storeUserSchedule($userId, Request $request)
+    {
+        $request->validate([
+            'date' => 'required',
+            'start_hour' => 'required',
+            'end_hour' => 'required',
+            'type' => 'required'
+        ]);
+        $dayOfWeek = Carbon::parse($request->input('date'))->dayOfWeek;
+
+        $schedule = Schedule::create([
+            'start_hour' => $request->input('start_hour'),
+            'end_hour' => $request->input('end_hour'),
+            'type' => $request->input('type'),
+            'date' => $request->input('date'),
+            'monitor_id' => $userId,
+            'supervisor_id' => auth()->user()->id,
+            'dependency_id' => auth()->user()->getSupervisedDepencyId(),
+            'day_of_week' => $dayOfWeek
+        ]);
+
+        return response('', 201);
     }
 }

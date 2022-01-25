@@ -48,7 +48,14 @@
 
                                 <td class="px-6 align-middle whitespace-nowrap p-4 text-center ">
 
+                                    <button class="p-2 text-center bg-principal text-white mx-1 rounded">
 
+                                        <Link
+                                            :href="route('users.schedules.show',{
+                                              user: user.id
+                                          })">Gestionar agenda
+                                        </Link>
+                                    </button>
                                     <button class="p-2 text-center bg-red-600 text-white mx-1 rounded"
                                             @click="deleteUserFromDependency(dependency.id, user.id)">Eliminar
                                         de la dependencia
