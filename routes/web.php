@@ -54,6 +54,7 @@ Route::delete('/dependencies/{dependency}/users/{user}', [\App\Http\Controllers\
 
 // -----------------------------------------  RUTAS DE SCHEDULES ----------------------------------------------------
 Route::get('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'userSchedules'])->name('users.schedules.show');
+Route::get('createEvent', [\App\Http\Controllers\ScheduleController::class, 'createEvent']);
 Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'StoreUserSchedule'])->name('users.schedules.store');
 
 

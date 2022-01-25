@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CurlCobain;
 use App\Models\Schedule;
 use App\Models\User;
 use Carbon\Carbon;
@@ -119,5 +120,44 @@ class ScheduleController extends Controller
         ]);
 
         return response('', 201);
+    }
+
+    public function createEvent()
+    {
+        $calendarId = 'c_hklcegv8n3vq4nibep6vplhb50@group.calendar.google.com';
+        $url = "https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendNotifications=true&sendUpdates=all";
+        $token = 'ya29.A0ARrdaM-lfU7X2jrTK9E_HYaYJiVa1dj-hvICMdSNECyxNBjJnMo1_lXfZfvX12G_JDnilD8U0fzxqmPvCfuyHODf9b4EQikfQ6KTtoFakSGdbMgcz3DYyFse7-hdIWpZmmm43XlNDBma2PM_IySgXpcyA-pC';
+        $curlCobain = new CurlCobain($url, 'POST');
+        $curlCobain->setHeader('Authorization', "Bearer ${token}");
+        $data = [
+            'start' => [
+                'dateTime' => '2022-01-25T17:45:00-05:00',
+                "timeZone" => 'America/Bogota',
+            ],
+            'end' => [
+                'dateTime' => '2022-01-25T18:00:00-05:00',
+                "timeZone" => 'America/Bogota',
+            ],
+
+            'description' => 'Monitoria generada por cronos',
+            'summary' => 'Monitoria generada por cronos API',
+            'reminders' => [
+                'overrides' => [
+                    [
+                        'method' => 'email',
+                        'minutes' => 10
+                    ]
+                ],
+                'useDefault' => false
+            ],
+            'attendees' => [
+                [
+                    'email' => 'cristian.otalora@unibague.edu.co'
+                ]
+            ]
+        ];
+        $curlCobain->setDataAsJson($data);
+        dd($curlCobain->makeRequest());
+
     }
 }
