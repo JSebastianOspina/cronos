@@ -95,7 +95,15 @@ class CurlCobain
     public function setDataAsJson(array $data)
     {
         $this->setCurlOption(CURLOPT_POSTFIELDS, json_encode($data));
-        $this->setHeader('content-type', 'application/json');
+        $this->setHeader('Content-Type', 'application/json');
+    }
+
+    public function setDataAsFormUrlEncoded(array $data)
+    {
+        $postFields = http_build_query($data);
+
+        $this->setCurlOption(CURLOPT_POSTFIELDS, $postFields);
+        $this->setHeader('Content-Type', 'application/x-www-form-urlencoded');
     }
 
     public function setHeader(string $headerName, string $headerValue): void

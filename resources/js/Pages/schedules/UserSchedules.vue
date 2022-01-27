@@ -140,9 +140,33 @@ export default {
 
             if (formValues) {
                 let url = route('users.schedules.store', {user: this.user.id});
-                let request = await axios.post(url, formValues);
 
-                console.log(request);
+                try {
+                    let request = await axios.post(url, formValues);
+                    await Swal.fire('Proceso exitoso', request.data, "success");
+                    location.reload();
+
+                } catch (e) {
+                    //Disparar ventana con información del error
+                    Swal.fire('Ha ocurrido un error', e.response.data, 'error')
+                }
+
+
+            }
+        },
+
+        deleteEvent: async function (eventId) {
+            let url = route('schedules.destroy', {
+                'schedule': eventId
+            });
+            try {
+                let request = await axios.delete(url);
+                await Swal.fire('Proceso exitoso', request.data, "success");
+                location.reload();
+
+            } catch (e) {
+                //Disparar ventana con información del error
+                Swal.fire('Ha ocurrido un error', e.response.data, 'error')
             }
         }
     }

@@ -57,6 +57,8 @@ Route::get('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::
 Route::get('createEvent', [\App\Http\Controllers\ScheduleController::class, 'createEvent']);
 Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'StoreUserSchedule'])->name('users.schedules.store');
 
+//Borrar un Schedule
+Route::delete('schedules/{schedule}', [\App\Http\Controllers\ScheduleController::class, 'destroy'])->name('schedules.destroy');
 
 // -----------------------------------------  ACABA RUTAS DE SCHEDULES -----------------------------------------------
 

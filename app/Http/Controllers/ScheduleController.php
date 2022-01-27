@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CurlCobain;
 use App\Helpers\GoogleCalendarApi;
 use App\Models\Schedule;
 use App\Models\User;
@@ -79,12 +80,13 @@ class ScheduleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Schedule $schedule)
     {
-        //
+        $schedule->delete();
+        return response('Horario de monitor borrado exitosamente', 200);
+
     }
 
 
@@ -96,6 +98,7 @@ class ScheduleController extends Controller
             'schedules' => $schedules,
             'user' => $user
         ]);
+
     }
 
     public function storeUserSchedule($userId, Request $request)
@@ -131,8 +134,22 @@ class ScheduleController extends Controller
 
 
         $googleCalendarApi = new GoogleCalendarApi($token, $calendarId);
-        dd($googleCalendarApi->createEvent('2022-01-26T17:55:00-05:00', '2022-01-26T18:00:00-05:00', 'Biblioteca', 'cristian.otalora@unibague.edu.co'));
+        $request = $googleCalendarApi->createEvent('2022-01-26T17:55:00-05:00', '2022-01-26T18:00:00-05:00', 'Biblioteca', '2420171030@estudiantesunibague.edu.co');
+        $requestObject = json_decode($request, true);
 
+        if (isset($requestObject['error'])) {
+            if ($requestObject['error']['code'] === 401) {
+                //The token has expired, let's reauthorize and save a new token.
+                $curlCobain = new CurlCobain('https://oauth2.googleapis.com/token', 'POST');
+                $curlCobain->setDataAsFormUrlEncoded([
+                    'client_id' => '202224303067-tlcghnil25ebniqojdcbpn4qduqtg5uj.apps.googleusercontent.com',
+                    'client_secret' => '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',
+                    'grant_type' => 'refresh_token',
+                    'refresh_token' => '1//055vtpJWb_B1_CgYIARAAGAUSNwF-L9IrcT23XTbF7JJbTq4ybX7tfHdew5huOsVfeu4PjqNDQv6qmjj1HEuya7AiGW2v8nj0Hto'
+                ]);
+                dd($curlCobain->makeRequest());
+            }
+        }
 
     }
 }
