@@ -3,6 +3,8 @@
 namespace App\Helpers;
 
 use App\Models\Config;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class GoogleCalendarApi
 {
@@ -13,7 +15,7 @@ class GoogleCalendarApi
      * @param $calendarId
      * @param null $token
      */
-    public function __construct($calendarId, $token = null)
+    public function __construct($calendarId = null, $token = null)
     {
         if ($token === null) {
             $token = Config::getGoogleAccessToken();
@@ -25,8 +27,9 @@ class GoogleCalendarApi
         $this->calendarId = $calendarId;
     }
 
-    public function updateAccessToken(): void
+    public static function updateAccessToken(): void
     {
+
         $curlCobain = new CurlCobain('https://oauth2.googleapis.com/token', 'POST');
         $curlCobain->setDataAsFormUrlEncoded([
             'client_id' => Config::getGoogleClientId(),
@@ -45,7 +48,47 @@ class GoogleCalendarApi
                 'value' => $refreshTokenRequestObject['access_token']
             ]
         );
+        Log::info('Se ha actualizado el token, el: ' . Carbon::now()->toDateTimeString());
+    }
 
+    public function requestWasAuthenticated($request)
+    {
+        if (isset($request['error']) && $request['error']['code'] === 401) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param $calendarName
+     * @return array
+     * @throws \JsonException
+     */
+    public function createCalendar($calendarName): array
+    {
+        $curlCobain = new CurlCobain('https://www.googleapis.com/calendar/v3/calendars', 'POST');
+        //Set authentication
+        $token = $this->token;
+
+        $curlCobain->setHeader('Authorization', "Bearer ${token}");
+
+        //Set body params
+        $data = [
+            'summary' => 'Horario de ' . $calendarName,
+            'description' => 'Este horario ha sido generado automáticamente por Cronos',
+            'timezone' => 'America/Bogota'
+        ];
+        $curlCobain->setDataAsJson($data);
+        //Make request
+        $request = $curlCobain->makeRequest();
+        $requestAsObject = json_decode($request, true, 512, JSON_THROW_ON_ERROR);
+
+        //Verify if was not successful
+        if (!$this->requestWasAuthenticated($requestAsObject)) {
+            self::updateAccessToken();
+            throw new \RuntimeException('Token invalido, por favor repetir la petición');
+        }
+        return $requestAsObject;
     }
 
     public function createEvent($startHour, $endHour, $dependencyName, $monitorEmail)
@@ -53,9 +96,9 @@ class GoogleCalendarApi
 
         $calendarId = $this->calendarId;
         $url = "https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendNotifications=true&sendUpdates=all";
-        $token = $this->token;
 
         $curlCobain = new CurlCobain($url, 'POST');
+        $token = $this->token;
         $curlCobain->setHeader('Authorization', "Bearer ${token}");
         $data = [
             'start' => [

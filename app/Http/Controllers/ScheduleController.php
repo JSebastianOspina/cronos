@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Helpers\CurlCobain;
 use App\Helpers\GoogleCalendarApi;
 use App\Models\Config;
+use App\Models\GoogleCalendar;
 use App\Models\Schedule;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class ScheduleController extends Controller
@@ -104,36 +106,55 @@ class ScheduleController extends Controller
 
     public function storeUserSchedule($userId, Request $request)
     {
+        /*--------------VALIDATION SECTION  -------------------*/
+        //Request validation
         $request->validate([
             'date' => 'required',
             'start_hour' => 'required',
             'end_hour' => 'required',
             'type' => 'required'
         ]);
-        $dayOfWeek = Carbon::parse($request->input('date'))->dayOfWeek;
+        //Permission validation
+        $dependencyId = auth()->user()->getSupervisedDepencyId();
+        if ($dependencyId === null) {
+            return response('No puedes gestionar el horario de un usuario si no eres supervisor de la dependencia', 403);
+        }
+        // business logic validation (valid calendar)
+        $calendar = GoogleCalendar::where('user_id', $userId)->where('dependency_id', $dependencyId)->first();
+        if ($calendar === null) {
+            return response('El usuario no tiene un calendario asociado. Por favor agregarlo nuevamente a la dependencia', 400);
+        }
+        /*--------------END VALIDATION SECTION  -------------------*/
 
-        $schedule = Schedule::create([
+        //Create schedule in local database
+        $dayOfWeek = Carbon::parse($request->input('date'))->dayOfWeek;
+        Schedule::create([
             'start_hour' => $request->input('start_hour'),
             'end_hour' => $request->input('end_hour'),
             'type' => $request->input('type'),
             'date' => $request->input('date'),
             'monitor_id' => $userId,
             'supervisor_id' => auth()->user()->id,
-            'dependency_id' => auth()->user()->getSupervisedDepencyId(),
+            'dependency_id' => $dependencyId,
             'day_of_week' => $dayOfWeek
         ]);
 
+        // create carbon objets and ask google calendar to create the event
+
+        $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('start_hour'));
+        $endDate = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('end_hour'));
+        return $startDate;
+
+        $this->handleEventCreation($calendar, $startDate, $endDate);
         return response('', 201);
     }
 
-    public function createEvent()
+    public function handleEventCreation($calendar, $startDate, $endDate)
     {
-
         $calendarId = 'c_hklcegv8n3vq4nibep6vplhb50@group.calendar.google.com';
 
         try {
             $googleCalendarApi = new GoogleCalendarApi($calendarId);
-
         } catch (\RuntimeException $e) {
             return response('Ha ocurrido el siguiente error: ' . $e->getMessage(), 500);
         }
@@ -142,29 +163,12 @@ class ScheduleController extends Controller
 
         if (isset($requestObject['error']) && $requestObject['error']['code'] === 401) {
             //The token has expired, let's reauthorize and save a new token.
-            $curlCobain = new CurlCobain('https://oauth2.googleapis.com/token', 'POST');
-            $curlCobain->setDataAsFormUrlEncoded([
-                'client_id' => '202224303067-tlcghnil25ebniqojdcbpn4qduqtg5uj.apps.googleusercontent.com',
-                'client_secret' => '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',
-                'grant_type' => 'refresh_token',
-                'refresh_token' => '1//055vtpJWb_B1_CgYIARAAGAUSNwF-L9IrcT23XTbF7JJbTq4ybX7tfHdew5huOsVfeu4PjqNDQv6qmjj1HEuya7AiGW2v8nj0Hto'
-            ]);
-
-            $refreshTokenRequest = $curlCobain->makeRequest();
-            $refreshTokenRequestObject = json_decode($refreshTokenRequest, true);
-
-            //Update access token on DB
-            $config = Config::updateOrCreate(
-                ['key' => 'google_access_token'],
-                [
-                    'value' => $refreshTokenRequestObject['access_token']
-                ]
-            );
-
-            return 'llegue hasta acá';
-
+            GoogleCalendarApi::updateAccessToken();
+            Log::info('Se ha actualizado el token, el: ' . Carbon::now()->toDateTimeString());
+            //Repeat the event creation
+            $this->handleEventCreation($calendar, $startDate, $endDate);
+            die;
         }
-
         dd($requestObject);
 
     }

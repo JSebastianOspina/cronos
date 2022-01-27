@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GoogleCalendarApi;
 use App\Models\Dependency;
+use App\Models\GoogleCalendar;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -94,7 +96,7 @@ class DependencyController extends Controller
 
     public function usersIndex(Dependency $dependency)
     {
-        $dependency = Dependency::where('id', $dependency->id)->with('users')->first();
+        $dependency = Dependency::where('id', '=', $dependency->id)->with('users')->first();
 
         $allUsers = User::all();
         return Inertia::render('dependencies/AddUsers', [
@@ -104,9 +106,12 @@ class DependencyController extends Controller
         ]);
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function usersStore(Dependency $dependency, Request $request)
     {
-
+        //Check if user belongs to the dependency
         $userCount = DB::table('dependency_user')
             ->where('user_id', '=', $request->input('userId'))
             ->where('dependency_id', '=', $dependency->id)
@@ -115,11 +120,29 @@ class DependencyController extends Controller
         if ($userCount > 0) {
             return response('El usuario ya pertenece a la dependencia. Si desea cambiar el rol, eliminelo y vuelvalo a agregar a la dependencia', 403);
         }
-
+        //Get requested user
         $user = User::find($request->input('userId'));
+
+        //Create a calendar for the user
+        $googleCalendarApi = new GoogleCalendarApi();
+        try {
+            $calendar = $googleCalendarApi->createCalendar($dependency->name . ' - ' . $user->name);
+        } catch (\RuntimeException $e) {
+            return response($e->getMessage(), 403);
+        }
+
+        //Store the calendar locally
+        GoogleCalendar::create([
+            'google_calendar_id' => $calendar['id'],
+            'url' => "https://calendar.google.com/calendar/embed?src=${calendar['id']}&ctz=America%2FBogota",
+            'user_id' => $user->id,
+            'dependency_id' => $dependency->id
+        ]);
+
+        //Attach the user to the dependency
         $user->dependencies()->attach($dependency->id, ['role' => $request->input('roleId')]);
 
-        return response('Usuario asignado correctamente a la dependencia', 200);
+        return response('Usuario asignado correctamente a la dependencia. Tambien se ha creado un calendario para el usuario', 200);
 
     }
 

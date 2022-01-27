@@ -30,5 +30,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class GoogleCalendar extends Model
 {
+    protected $guarded = [];
     use HasFactory;
 }
