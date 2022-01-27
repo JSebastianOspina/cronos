@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\CurlCobain;
 use App\Helpers\GoogleCalendarApi;
+use App\Models\Config;
 use App\Models\Schedule;
 use App\Models\User;
 use Carbon\Carbon;
@@ -129,27 +130,42 @@ class ScheduleController extends Controller
     {
 
         $calendarId = 'c_hklcegv8n3vq4nibep6vplhb50@group.calendar.google.com';
-        $url = "https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendNotifications=true&sendUpdates=all";
-        $token = 'ya29.A0ARrdaM-lfU7X2jrTK9E_HYaYJiVa1dj-hvICMdSNECyxNBjJnMo1_lXfZfvX12G_JDnilD8U0fzxqmPvCfuyHODf9b4EQikfQ6KTtoFakSGdbMgcz3DYyFse7-hdIWpZmmm43XlNDBma2PM_IySgXpcyA-pC';
 
+        try {
+            $googleCalendarApi = new GoogleCalendarApi($calendarId);
 
-        $googleCalendarApi = new GoogleCalendarApi($token, $calendarId);
+        } catch (\RuntimeException $e) {
+            return response('Ha ocurrido el siguiente error: ' . $e->getMessage(), 500);
+        }
         $request = $googleCalendarApi->createEvent('2022-01-26T17:55:00-05:00', '2022-01-26T18:00:00-05:00', 'Biblioteca', '2420171030@estudiantesunibague.edu.co');
         $requestObject = json_decode($request, true);
 
-        if (isset($requestObject['error'])) {
-            if ($requestObject['error']['code'] === 401) {
-                //The token has expired, let's reauthorize and save a new token.
-                $curlCobain = new CurlCobain('https://oauth2.googleapis.com/token', 'POST');
-                $curlCobain->setDataAsFormUrlEncoded([
-                    'client_id' => '202224303067-tlcghnil25ebniqojdcbpn4qduqtg5uj.apps.googleusercontent.com',
-                    'client_secret' => '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',
-                    'grant_type' => 'refresh_token',
-                    'refresh_token' => '1//055vtpJWb_B1_CgYIARAAGAUSNwF-L9IrcT23XTbF7JJbTq4ybX7tfHdew5huOsVfeu4PjqNDQv6qmjj1HEuya7AiGW2v8nj0Hto'
-                ]);
-                dd($curlCobain->makeRequest());
-            }
+        if (isset($requestObject['error']) && $requestObject['error']['code'] === 401) {
+            //The token has expired, let's reauthorize and save a new token.
+            $curlCobain = new CurlCobain('https://oauth2.googleapis.com/token', 'POST');
+            $curlCobain->setDataAsFormUrlEncoded([
+                'client_id' => '202224303067-tlcghnil25ebniqojdcbpn4qduqtg5uj.apps.googleusercontent.com',
+                'client_secret' => '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',
+                'grant_type' => 'refresh_token',
+                'refresh_token' => '1//055vtpJWb_B1_CgYIARAAGAUSNwF-L9IrcT23XTbF7JJbTq4ybX7tfHdew5huOsVfeu4PjqNDQv6qmjj1HEuya7AiGW2v8nj0Hto'
+            ]);
+
+            $refreshTokenRequest = $curlCobain->makeRequest();
+            $refreshTokenRequestObject = json_decode($refreshTokenRequest, true);
+
+            //Update access token on DB
+            $config = Config::updateOrCreate(
+                ['key' => 'google_access_token'],
+                [
+                    'value' => $refreshTokenRequestObject['access_token']
+                ]
+            );
+
+            return 'llegue hasta acá';
+
         }
+
+        dd($requestObject);
 
     }
 }

@@ -2,18 +2,50 @@
 
 namespace App\Helpers;
 
+use App\Models\Config;
+
 class GoogleCalendarApi
 {
     private $token;
     private $calendarId;
 
     /**
-     * @param $token
+     * @param $calendarId
+     * @param null $token
      */
-    public function __construct($token, $calendarId)
+    public function __construct($calendarId, $token = null)
     {
+        if ($token === null) {
+            $token = Config::getGoogleAccessToken();
+            if ($token === null) {
+                throw new \RuntimeException('No Existe un token en la configuración de la aplicacion');
+            }
+        }
         $this->token = $token;
         $this->calendarId = $calendarId;
+    }
+
+    public function updateAccessToken(): void
+    {
+        $curlCobain = new CurlCobain('https://oauth2.googleapis.com/token', 'POST');
+        $curlCobain->setDataAsFormUrlEncoded([
+            'client_id' => Config::getGoogleClientId(),
+            'client_secret' => Config::getGoogleClientSecret(),
+            'grant_type' => 'refresh_token',
+            'refresh_token' => Config::getGoogleRefreshToken()
+        ]);
+
+        $refreshTokenRequest = $curlCobain->makeRequest();
+        $refreshTokenRequestObject = json_decode($refreshTokenRequest, true);
+
+        //Update access token on DB
+        Config::updateOrCreate(
+            ['key' => 'google_access_token'],
+            [
+                'value' => $refreshTokenRequestObject['access_token']
+            ]
+        );
+
     }
 
     public function createEvent($startHour, $endHour, $dependencyName, $monitorEmail)
