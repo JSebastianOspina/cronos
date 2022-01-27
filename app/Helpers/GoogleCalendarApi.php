@@ -27,7 +27,43 @@ class GoogleCalendarApi
         $this->calendarId = $calendarId;
     }
 
-    public static function updateAccessToken(): void
+    private function updateAccessToken(): void
+    {
+        $this->token = Config::getGoogleAccessToken();
+    }
+
+    /**
+     * @throws \JsonException
+     * @throws GoogleCalendarApiException
+     */
+    public function deleteCalendar()
+    {
+
+        $curlCobain = new CurlCobain('https://www.googleapis.com/calendar/v3/calendars/' . $this->calendarId, 'DELETE');
+        //Set authentication
+        $token = $this->token;
+        $curlCobain->setHeader('Authorization', "Bearer ${token}");
+        $request = $curlCobain->makeRequest();
+
+        $requestAsObject = json_decode($request, true, 512, JSON_THROW_ON_ERROR);
+
+        //Verify if was not successful
+        if (!$this->requestWasAuthenticated($requestAsObject)) {
+            //Exchange new token
+            self::refreshAccessToken();
+            //Update class instantiated token
+            $this->updateAccessToken();
+            //try again
+            return $this->deleteCalendar();
+        }
+        if ($this->requestHasError($request)) {
+            throw new GoogleCalendarApiException('Ha ocurrido un error con la api de google');
+        }
+
+        return $requestAsObject;
+    }
+
+    public static function refreshAccessToken(): void
     {
 
         $curlCobain = new CurlCobain('https://oauth2.googleapis.com/token', 'POST');
@@ -51,7 +87,15 @@ class GoogleCalendarApi
         Log::info('Se ha actualizado el token, el: ' . Carbon::now()->toDateTimeString());
     }
 
-    public function requestWasAuthenticated($request)
+    private function requestHasError($request)
+    {
+        if (isset($request['error'])) {
+            return false;
+        }
+        return true;
+    }
+
+    private function requestWasAuthenticated($request)
     {
         if (isset($request['error']) && $request['error']['code'] === 401) {
             return false;
@@ -85,8 +129,12 @@ class GoogleCalendarApi
 
         //Verify if was not successful
         if (!$this->requestWasAuthenticated($requestAsObject)) {
-            self::updateAccessToken();
-            throw new \RuntimeException('Token invalido, por favor repetir la petición');
+            //Exchange new token
+            self::refreshAccessToken();
+            //Update class instantiated token
+            $this->updateAccessToken();
+            //try again
+            return $this->createCalendar($calendarName);
         }
         return $requestAsObject;
     }

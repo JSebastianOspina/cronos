@@ -31,11 +31,18 @@ class CurlCobain
 
     private function basicSetUp(): void
     {
+
         $this->setCurlOption(CURLOPT_URL, $this->url);
-        $this->setCurlOption(CURLOPT_POST, $this->method === 'POST');
         $this->setCurlOption(CURLOPT_RETURNTRANSFER, true); //Get text instead of void
         $this->setCurlOption(CURLOPT_SSL_VERIFYHOST, $this->requireSSL);
         $this->setCurlOption(CURLOPT_SSL_VERIFYPEER, $this->requireSSL);
+        //handle type of http method
+
+        if ($this->method !== 'GET' && $this->method !== 'POST') {
+            $this->setCurlOption(CURLOPT_CUSTOMREQUEST, $this->method);
+        } else {
+            $this->setCurlOption(CURLOPT_POST, $this->method === 'POST');
+        }
 
     }
 

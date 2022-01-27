@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\GoogleCalendarApi;
+use App\Helpers\GoogleCalendarApiException;
 use App\Models\Dependency;
 use App\Models\GoogleCalendar;
 use App\Models\User;
@@ -146,14 +147,39 @@ class DependencyController extends Controller
 
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function usersDelete($dependencyId, $userId)
     {
+        //Remove user from dependency
         DB::table('dependency_user')
             ->where('user_id', '=', $userId)
             ->where('dependency_id', '=', $dependencyId)
             ->delete();
 
-        return response('Usuario eliminado correctamente de la dependencia', 200);
+        //Also search and delete the calendar
+
+        $googleCalendar = GoogleCalendar::where('user_id', '=', $userId)
+            ->where('dependency_id', '=', $dependencyId)
+            ->first();
+        if ($googleCalendar === null) {
+            return response('Usuario eliminado correctamente de la dependencia. No se encontraron calendarios asociados', 200);
+        }
+
+        $googleCalendarApi = new GoogleCalendarApi($googleCalendar->google_calendar_id);
+        $googleCalendar->delete();
+        try {
+            $googleCalendarApi->deleteCalendar();
+        } catch (\JsonException $e) {
+            return response('Usuario eliminado correctamente de la dependencia. Todos los calendarios asociados
+        fueron eliminados también', 200);
+        } catch (GoogleCalendarApiException $e) {
+            return response('Usuario eliminado correctamente de la dependencia.
+            Sin embargo, hubo un error al borrar su calendario de Google', 200);
+        }
+        return response('Usuario eliminado correctamente de la dependencia. :)', 200);
+
 
     }
 }
