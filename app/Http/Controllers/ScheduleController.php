@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\CurlCobain;
 use App\Helpers\GoogleCalendarApi;
+use App\Helpers\GoogleCalendarApiException;
 use App\Models\Config;
 use App\Models\GoogleCalendar;
 use App\Models\Schedule;
@@ -87,8 +88,31 @@ class ScheduleController extends Controller
      */
     public function destroy(Schedule $schedule)
     {
+        $googleCalendar = GoogleCalendar::where('user_id', '=', $schedule->monitor_id)
+            ->where('dependency_id', '=', $schedule->dependency_id)
+            ->first();
+        //Validate if not exists
+        if ($googleCalendar === null) {
+            $schedule->delete();
+            return response('Horario de monitor borrado exitosamente, pero no se pudo eliminar el evento
+            de Google Calendar', 200);
+        }
+
+        try {
+            $googleCalendarApi = new GoogleCalendarApi($googleCalendar->google_calendar_id);
+            $googleCalendarApi->deleteEvent($schedule->google_event_id);
+
+        } catch (GoogleCalendarApiException $e) {
+            $schedule->delete();
+            return response('Horario de monitor borrado exitosamente. Sin embargo, no se pudo eliminar el evento
+            de Google Calendar debido a: '.$e->getMessage(), 200);
+        }catch (\Exception $e) {
+            $schedule->delete();
+            return response('Horario de monitor borrado exitosamente, error JSON '.$e->getMessage(), 200);
+        }
+
         $schedule->delete();
-        return response('Horario de monitor borrado exitosamente', 200);
+        return response('Horario de monitor borrado exitosamente del sistema y de Google Calendar', 200);
 
     }
 

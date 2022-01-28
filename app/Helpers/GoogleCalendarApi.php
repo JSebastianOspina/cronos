@@ -90,9 +90,9 @@ class GoogleCalendarApi
     private function requestHasError($request)
     {
         if (isset($request['error'])) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     private function requestWasAuthenticated($request)
@@ -176,6 +176,36 @@ class GoogleCalendarApi
             return $this->UpdateTokenAndRetryRequest('createEvent', $startHour, $endHour, $dependencyName, $monitorEmail);
         }
         return $createEventRequestObject;
+
+    }
+
+    /**
+     * @throws GoogleCalendarApiException
+     */
+    public function deleteEvent($eventId)
+    {
+        if ($eventId === null) {
+            throw new GoogleCalendarApiException('No se proporcionó un ID de evento');
+        }
+
+        $curlCobain = new CurlCobain('https://www.googleapis.com/calendar/v3/calendars/' . $this->calendarId . '/events/' . $eventId.'?sendUpdates=all', 'DELETE');
+        //Set authentication
+        $token = $this->token;
+        $curlCobain->setHeader('Authorization', "Bearer ${token}");
+        $request = $curlCobain->makeRequest();
+
+        $requestAsObject = json_decode($request, true);
+
+        //Verify if was not successful
+        if (!$this->requestWasAuthenticated($requestAsObject)) {
+            return $this->UpdateTokenAndRetryRequest('deleteEvent', $eventId);
+        }
+        if ($this->requestHasError($request)) {
+            throw new GoogleCalendarApiException('Ha ocurrido un error con la api de google');
+        }
+
+        return $requestAsObject;
+
 
     }
 
