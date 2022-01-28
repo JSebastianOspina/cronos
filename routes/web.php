@@ -70,9 +70,14 @@ Route::post('api/makeCheckInOrCheckout', [\App\Http\Controllers\RecordController
 Route::get('check', [\App\Http\Controllers\RecordController::class, 'showCheckInOutView'])->name('check.showCheckInOutView')->middleware(['auth']);
 // -----------------------------------------  ACABA CHECK IN - OUT -----------------------------------------------
 
-// RUTAS DE MONITORES
+// --------------------------------------------   RUTAS DE MONITORES -----------------------------------------------
 
 Route::get('monitors', [\App\Http\Controllers\MonitorController::class, 'index'])->name('monitors.index')->middleware(['auth']);
+Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorController::class, 'showUserCalendars'])->name('monitors.calendars')->middleware(['auth']);
+Route::get('api/monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorController::class, 'getUserCalendars'])->name('api.monitors.getUserCalendars')->middleware(['auth']);
+
+
+// -----------------------------------------  ACABA RUTAS DE MONITORES -----------------------------------------------
 
 // RUTAS DE REPORTES
 

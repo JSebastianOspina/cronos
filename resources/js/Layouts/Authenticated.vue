@@ -30,18 +30,19 @@
                             </div>
 
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                                <BreezeNavLink :href="route('monitors.index')"
-                                               :active="route().current('monitors.index')">
-                                    Gestionar monitores
+                                <BreezeNavLink :href="route('check.showCheckInOutView')"
+                                               :active="route().current('check.showCheckInOutView')">
+                                    Mis monitorias
                                 </BreezeNavLink>
                             </div>
 
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex ">
-                                <BreezeNavLink :href="route('reports.index')"
-                                               :active="route().current('reports.index')">
-                                    Reportes
+                                <BreezeNavLink :href="route('monitors.calendars',{monitor:$page.props.auth.user.id})"
+                                               :active="route().current('monitors.calendars',{monitor:$page.props.auth.user.id})">
+                                    Mi horario
                                 </BreezeNavLink>
                             </div>
+
 
                         </div>
 

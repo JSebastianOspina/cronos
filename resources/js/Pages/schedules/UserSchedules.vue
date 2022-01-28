@@ -118,7 +118,7 @@ export default {
                     '<div class="flex justify-between items-center "><label for="type">Selecciona el tipo de evento</label>' +
                     '<select  id="type" class="pl-3 pr-8 py-2 rounded border-indigo-400">' +
                     '<option value="unique">Unico</option>' +
-                    '<option value="periodic">Periodico</option>' +
+                    //  '<option value="periodic">Periodico</option>' +
                     '</select>' +
                     '</div>',
 
