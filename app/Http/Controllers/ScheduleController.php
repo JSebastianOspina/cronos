@@ -126,6 +126,18 @@ class ScheduleController extends Controller
         }
         /*--------------END VALIDATION SECTION  -------------------*/
 
+
+        try {
+            // create carbon objets and
+            $startDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('start_hour'));
+            $endDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('end_hour'));
+            //ask google calendar to create the event
+            $googleCalendarApi = new GoogleCalendarApi($calendar->google_calendar_id);
+            $googleCalendarEvent = $googleCalendarApi->createEvent($startDate, $endDate, $calendar->dependency->name, $calendar->user->email);
+        } catch (\RuntimeException $e) {
+            return response('Ha ocurrido el siguiente error: ' . $e->getMessage(), 500);
+        }
+
         //Create schedule in local database
         $dayOfWeek = Carbon::parse($request->input('date'))->dayOfWeek;
         Schedule::create([
@@ -136,30 +148,16 @@ class ScheduleController extends Controller
             'monitor_id' => $userId,
             'supervisor_id' => auth()->user()->id,
             'dependency_id' => $dependencyId,
-            'day_of_week' => $dayOfWeek
+            'day_of_week' => $dayOfWeek,
+            'google_event_id' => $googleCalendarEvent['id']
         ]);
 
-        // create carbon objets and ask google calendar to create the event
-        $startDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('start_hour'));
-        $endDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('end_hour'));
-
-        $this->handleEventCreation($calendar, $startDate, $endDate);
         return response('', 201);
     }
 
-    public function handleEventCreation($calendar, $startDate, $endDate)
+    public function handleEventCreation($calendar, $startDate, $endDate): void
     {
-        $calendarId = $calendar->google_calendar_id;
-
-        try {
-            $googleCalendarApi = new GoogleCalendarApi($calendarId);
-        } catch (\RuntimeException $e) {
-            return response('Ha ocurrido el siguiente error: ' . $e->getMessage(), 500);
-        }
-        $googleCalendarEventObject = $googleCalendarApi->createEvent($startDate, $endDate, 'Monitoría de : ' . $calendar->dependency->name, $calendar->user->email);
-
-
-        dd($googleCalendarEventObject);
-
+        $googleCalendarApi = new GoogleCalendarApi($calendar->google_calendar_id);
+        $googleCalendarApi->createEvent($startDate, $endDate, $calendar->dependency->name, $calendar->user->email);
     }
 }

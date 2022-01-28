@@ -152,8 +152,8 @@ class GoogleCalendarApi
                 "timeZone" => 'America/Bogota',
             ],
 
-            'description' => 'Este evento ha sido generado automaticamente por cronos',
-            'summary' => 'Monitoria de: ' . $dependencyName,
+            'description' => 'Este evento ha sido generado automaticamente por Cronos',
+            'summary' => 'Monitoria de ' . $dependencyName,
             'reminders' => [
                 'overrides' => [
                     [
