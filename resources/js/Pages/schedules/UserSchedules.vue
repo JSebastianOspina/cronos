@@ -1,5 +1,5 @@
 <template>
-    <Head title="Titulo pagina"/>
+    <Head title="Gestionar agendas del usuario"/>
 
     <BreezeAuthenticatedLayout>
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class RecordController extends Controller
 {
@@ -17,6 +18,7 @@ class RecordController extends Controller
     {
         //
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -84,6 +86,11 @@ class RecordController extends Controller
         //
     }
 
+    public function showCheckInOutView()
+    {
+        return Inertia::render('checks/InOut');
+    }
+
     public function getActiveRecords(Request $request)
     {
         $records = Record::getUserActiveRecords();
@@ -93,5 +100,35 @@ class RecordController extends Controller
             ], 404);
         }
         return response()->json($records);
+    }
+
+    public function makeCheckInOrCheckout(Request $request)
+    {
+        $recordId = $request->input('recordId');
+        $record = Record::find($recordId);
+        if ($record === null) {
+            return response()
+                ->json(['error' =>
+                    'No fue posible realizar la acción'
+                ], 404);
+        }
+        $isCheckIn = false;
+        if ($record->status === 'created' && $record->start_monitor_date === null) {
+            $record->start_monitor_date = Carbon::now()->toDateTimeString();
+            $record->status = 'in_process';
+            $record->save();
+            return response()->json(['msg' => 'Check in realizado exitosamente'], 200);
+        }
+
+        if ($record->status === 'in_process' && $record->start_monitor_date !== null) {
+            $record->end_monitor_date = Carbon::now()->toDateTimeString();
+            $record->status = 'finished';
+            $record->save();
+            return response()->json(['msg' => 'Check out realizado exitosamente'], 200);
+        }
+
+
+
+
     }
 }

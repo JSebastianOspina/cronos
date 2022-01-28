@@ -66,10 +66,19 @@ class Record extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function dependency()
+    {
+        return $this->belongsTo(Dependency::class);
+    }
+
     public static function getUserActiveRecords()
     {
         $now = Carbon::now();
         return \DB::table('records')
+            ->select([
+                'records.start_planned_date','records.end_planned_date', 'dependencies.name',
+                'records.status','records.id'
+            ])
             ->where('start_planned_date', '<=', $now->toDateTimeString())
             ->where('end_planned_date', '>', $now->toDateTimeString())
             ->where('monitor_id', '=', auth()->user()->id)
@@ -77,6 +86,7 @@ class Record extends Model
             ->orWhere(function ($query) {
                 $query->where('status', 'in_process');
             })
+            ->join('dependencies', 'dependencies.id', '=', 'records.dependency_id')
             ->get();
     }
 

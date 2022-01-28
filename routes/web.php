@@ -65,7 +65,9 @@ Route::delete('schedules/{schedule}', [\App\Http\Controllers\ScheduleController:
 
 // -----------------------------------------   RUTAS DE CHECK IN - OUT -----------------------------------------------
 
-Route::get('check', [\App\Http\Controllers\RecordController::class, 'getActiveRecords'])->name('check.getActiveRecords')->middleware(['auth']);
+Route::get('api/getActiveRecords', [\App\Http\Controllers\RecordController::class, 'getActiveRecords'])->name('check.getActiveRecords')->middleware(['auth']);
+Route::post('api/makeCheckInOrCheckout', [\App\Http\Controllers\RecordController::class, 'makeCheckInOrCheckout'])->name('check.makeCheckInOrCheckout')->middleware(['auth']);
+Route::get('check', [\App\Http\Controllers\RecordController::class, 'showCheckInOutView'])->name('check.showCheckInOutView')->middleware(['auth']);
 // -----------------------------------------  ACABA CHECK IN - OUT -----------------------------------------------
 
 // RUTAS DE MONITORES
