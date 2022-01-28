@@ -32,4 +32,14 @@ class GoogleCalendar extends Model
 {
     protected $guarded = [];
     use HasFactory;
+
+    public function dependency()
+    {
+        return $this->belongsTo(Dependency::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

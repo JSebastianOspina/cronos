@@ -113,7 +113,6 @@ class GoogleCalendarApi
         $curlCobain = new CurlCobain('https://www.googleapis.com/calendar/v3/calendars', 'POST');
         //Set authentication
         $token = $this->token;
-
         $curlCobain->setHeader('Authorization', "Bearer ${token}");
 
         //Set body params
@@ -129,12 +128,7 @@ class GoogleCalendarApi
 
         //Verify if was not successful
         if (!$this->requestWasAuthenticated($requestAsObject)) {
-            //Exchange new token
-            self::refreshAccessToken();
-            //Update class instantiated token
-            $this->updateAccessToken();
-            //try again
-            return $this->createCalendar($calendarName);
+            return $this->UpdateTokenAndRetryRequest('createCalendar', $calendarName);
         }
         return $requestAsObject;
     }
@@ -176,7 +170,24 @@ class GoogleCalendarApi
             ]
         ];
         $curlCobain->setDataAsJson($data);
-        return $curlCobain->makeRequest();
+        $createEventRequest = $curlCobain->makeRequest();
+        $createEventRequestObject = json_decode($createEventRequest, true);
+        if (!$this->requestWasAuthenticated($createEventRequestObject)) {
+            return $this->UpdateTokenAndRetryRequest('createEvent', $startHour, $endHour, $dependencyName, $monitorEmail);
+        }
+        return $createEventRequestObject;
+
     }
+
+    private function UpdateTokenAndRetryRequest($method, ...$params)
+    {
+        //Exchange new token
+        self::refreshAccessToken();
+        //Update class instantiated token
+        $this->updateAccessToken();
+        //try again
+        return $this->$method(...$params);
+    }
+
 
 }

@@ -140,10 +140,8 @@ class ScheduleController extends Controller
         ]);
 
         // create carbon objets and ask google calendar to create the event
-
-        $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('start_hour'));
-        $endDate = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('end_hour'));
-        return $startDate;
+        $startDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('start_hour'));
+        $endDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('end_hour'));
 
         $this->handleEventCreation($calendar, $startDate, $endDate);
         return response('', 201);
@@ -151,25 +149,17 @@ class ScheduleController extends Controller
 
     public function handleEventCreation($calendar, $startDate, $endDate)
     {
-        $calendarId = 'c_hklcegv8n3vq4nibep6vplhb50@group.calendar.google.com';
+        $calendarId = $calendar->google_calendar_id;
 
         try {
             $googleCalendarApi = new GoogleCalendarApi($calendarId);
         } catch (\RuntimeException $e) {
             return response('Ha ocurrido el siguiente error: ' . $e->getMessage(), 500);
         }
-        $request = $googleCalendarApi->createEvent('2022-01-26T17:55:00-05:00', '2022-01-26T18:00:00-05:00', 'Biblioteca', '2420171030@estudiantesunibague.edu.co');
-        $requestObject = json_decode($request, true);
+        $googleCalendarEventObject = $googleCalendarApi->createEvent($startDate, $endDate, 'Monitoría de : ' . $calendar->dependency->name, $calendar->user->email);
 
-        if (isset($requestObject['error']) && $requestObject['error']['code'] === 401) {
-            //The token has expired, let's reauthorize and save a new token.
-            GoogleCalendarApi::updateAccessToken();
-            Log::info('Se ha actualizado el token, el: ' . Carbon::now()->toDateTimeString());
-            //Repeat the event creation
-            $this->handleEventCreation($calendar, $startDate, $endDate);
-            die;
-        }
-        dd($requestObject);
+
+        dd($googleCalendarEventObject);
 
     }
 }
