@@ -52,7 +52,7 @@ use Illuminate\Database\Eloquent\Model;
 class Record extends Model
 {
     use HasFactory;
-
+    protected $guarded = [];
 
     public function monitor()
     {

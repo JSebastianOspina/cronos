@@ -29,7 +29,7 @@ class CreateRecordsTable extends Migration
             $table->timestamp('total_planned_minutes')->nullable();
             $table->timestamp('total_monitor_minutes')->nullable();
             $table->timestamp('total_approved_minutes')->nullable();
-            $table->enum('status', ['created', 'in_process', 'finished', 'approved'])->nullable();
+            $table->enum('status', ['created', 'in_process', 'finished', 'approved'])->nullable()->default('created');
             $table->json('observation')->nullable();
             $table->timestamps();
 

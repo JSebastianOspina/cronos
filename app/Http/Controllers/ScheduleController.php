@@ -7,6 +7,7 @@ use App\Helpers\GoogleCalendarApi;
 use App\Helpers\GoogleCalendarApiException;
 use App\Models\Config;
 use App\Models\GoogleCalendar;
+use App\Models\Record;
 use App\Models\Schedule;
 use App\Models\User;
 use Carbon\Carbon;
@@ -105,10 +106,10 @@ class ScheduleController extends Controller
         } catch (GoogleCalendarApiException $e) {
             $schedule->delete();
             return response('Horario de monitor borrado exitosamente. Sin embargo, no se pudo eliminar el evento
-            de Google Calendar debido a: '.$e->getMessage(), 200);
-        }catch (\Exception $e) {
+            de Google Calendar debido a: ' . $e->getMessage(), 200);
+        } catch (\Exception $e) {
             $schedule->delete();
-            return response('Horario de monitor borrado exitosamente, error JSON '.$e->getMessage(), 200);
+            return response('Horario de monitor borrado exitosamente, error JSON ' . $e->getMessage(), 200);
         }
 
         $schedule->delete();
@@ -150,7 +151,6 @@ class ScheduleController extends Controller
         }
         /*--------------END VALIDATION SECTION  -------------------*/
 
-
         try {
             // create carbon objets and
             $startDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('start_hour'));
@@ -174,6 +174,17 @@ class ScheduleController extends Controller
             'dependency_id' => $dependencyId,
             'day_of_week' => $dayOfWeek,
             'google_event_id' => $googleCalendarEvent['id']
+        ]);
+
+        //Finally, migrate the data to the records table
+
+        Record::create([
+            'dependency_id' => $dependencyId,
+            'monitor_id' => $userId,
+            'supervisor_id' => auth()->user()->id,
+            'start_planned_date' => $startDate,
+            'end_planned_date' => $endDate,
+            'status' => 'created',
         ]);
 
         return response('', 201);
