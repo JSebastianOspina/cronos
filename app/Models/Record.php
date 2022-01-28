@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -52,6 +53,7 @@ use Illuminate\Database\Eloquent\Model;
 class Record extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
 
     public function monitor()
@@ -62,6 +64,20 @@ class Record extends Model
     public function supervisor()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public static function getUserActiveRecords()
+    {
+        $now = Carbon::now();
+        return \DB::table('records')
+            ->where('start_planned_date', '<=', $now->toDateTimeString())
+            ->where('end_planned_date', '>', $now->toDateTimeString())
+            ->where('monitor_id', '=', auth()->user()->id)
+            ->where('status', '=', 'created')
+            ->orWhere(function ($query) {
+                $query->where('status', 'in_process');
+            })
+            ->get();
     }
 
 
