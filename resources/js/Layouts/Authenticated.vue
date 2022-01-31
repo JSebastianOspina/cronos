@@ -15,14 +15,16 @@
 
                             <!-- Navigation Links -->
 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"
+                                 v-if="$page.props.auth.user.role === 2">
                                 <BreezeNavLink :href="route('users.index')"
                                                :active="route().current('users.index')">
                                     Administrar usuarios
                                 </BreezeNavLink>
                             </div>
 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"
+                                 v-if="$page.props.auth.user.role >= 1">
                                 <BreezeNavLink :href="route('dependencies.index')"
                                                :active="route().current('dependencies.index')">
                                     Administrar dependencias
@@ -32,7 +34,7 @@
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                                 <BreezeNavLink :href="route('check.showCheckInOutView')"
                                                :active="route().current('check.showCheckInOutView')">
-                                    Mis monitorias
+                                    Mis monitorias {{ user }}
                                 </BreezeNavLink>
                             </div>
 
@@ -97,11 +99,21 @@
                 <!-- Responsive Navigation Menu -->
                 <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}"
                      class="sm:hidden">
+
                     <div class="pt-2 pb-3 space-y-1">
-                        <BreezeResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
+                        <BreezeResponsiveNavLink :href="route('check.showCheckInOutView')"
+                                                 :active="route().current('check.showCheckInOutView')">
+                            Mis monitorias
                         </BreezeResponsiveNavLink>
                     </div>
+
+                    <div class="pt-2 pb-3 space-y-1">
+                        <BreezeResponsiveNavLink :href="route('monitors.calendars',{monitor:$page.props.auth.user.id})"
+                                                 :active="route().current('monitors.calendars',{monitor:$page.props.auth.user.id})">
+                            Mi horario
+                        </BreezeResponsiveNavLink>
+                    </div>
+
 
                     <!-- Responsive Settings Options -->
                     <div class="pt-4 pb-1 border-t border-gray-200">
