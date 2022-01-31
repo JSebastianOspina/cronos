@@ -8,7 +8,9 @@
                     <div class="p-6 bg-white border-b border-gray-200">
                         <div class="flex justify-between mb-5">
                             <h1 class="text-2xl font-bold">Gestionar dependencias</h1>
+
                             <button
+                                v-if="isAdmin"
                                 @click="openCreateUserModal"
                                 class="p-2 text-center bg-principal text-white mx-1 rounded">Crear nueva
                             </button>
@@ -49,6 +51,7 @@
 
                                     <button
                                         @click="deleteDependency(dependency.id)"
+                                        v-if="isAdmin"
                                         class="p-2 text-center bg-red-600 text-white mx-1 rounded">Borrar
                                         dependencia
                                     </button>
@@ -85,7 +88,8 @@ export default {
         Link
     },
     props: {
-        dependencies: Array
+        dependencies: Array,
+        isAdmin: Boolean
     },
 
     methods: {

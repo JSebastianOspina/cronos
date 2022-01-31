@@ -93,7 +93,7 @@ class User extends Authenticatable
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class,'monitor_id','id');
+        return $this->hasMany(Schedule::class, 'monitor_id', 'id');
     }
 
     public function dependencies()
@@ -116,6 +116,16 @@ class User extends Authenticatable
 
         return $dependency_user->dependency_id;
 
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 2;
+    }
+
+    public function isSupervisor(): bool
+    {
+        return $this->role >= 1;
     }
 
 

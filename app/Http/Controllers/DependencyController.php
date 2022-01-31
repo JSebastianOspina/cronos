@@ -25,6 +25,7 @@ class DependencyController extends Controller
 
         $dependencies = Dependency::with('users')->get();
         return Inertia::render('dependencies/Index', [
+            'isAdmin' => auth()->user()->isAdmin(),
             'dependencies' => $dependencies
         ]);
     }
