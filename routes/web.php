@@ -62,7 +62,7 @@ Route::delete('/dependencies/{dependency}/users/{user}', [\App\Http\Controllers\
 /*-----------> Rutas de Schedules <-------------*/
 
 //Ver agendas de un usuario
-Route::get('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'userSchedules'])->name('users.schedules.show')->middleware(['auth', 'isSupervisor']);
+Route::get('users/{user}/dependency/{dependency}/schedules', [\App\Http\Controllers\ScheduleController::class, 'userSchedules'])->name('users.schedules.show')->middleware(['auth', 'isSupervisor']);
 // Crear un evento (agenda) a un usuario
 Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'StoreUserSchedule'])->name('users.schedules.store')->middleware(['auth', 'isSupervisor']);
 //Borrar un evento

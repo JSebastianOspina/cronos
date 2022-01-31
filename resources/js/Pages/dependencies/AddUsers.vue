@@ -52,7 +52,8 @@
 
                                         <Link
                                             :href="route('users.schedules.show',{
-                                              user: user.id
+                                              user: user.id,
+                                              dependency:dependency.id
                                           })">Gestionar agenda
                                         </Link>
                                     </button>

@@ -117,9 +117,11 @@ class ScheduleController extends Controller
     }
 
 
-    public function userSchedules(User $user, Request $request)
+    public function userSchedules(User $user, $dependencyId, Request $request)
     {
-        $schedules = $user->schedules;
+        $schedules = Schedule::where('monitor_id', $user->id)
+            ->where('dependency_id', $dependencyId)
+            ->get();
 
         return Inertia::render('schedules/UserSchedules', [
             'schedules' => $schedules,
