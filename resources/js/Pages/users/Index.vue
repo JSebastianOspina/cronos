@@ -47,23 +47,19 @@
                                     <td class="px-6 align-middle whitespace-nowrap p-4 text-center ">
 
                                         <button class="p-2 text-center bg-green-600 text-white mx-1 rounded"
-                                                @click="changeRole(1, user.id)">Hacer
+                                                @click="changeRole(0, user.id)">Hacer
                                             monitor
                                         </button>
 
                                         <button class="p-2 text-center bg-yellow-400 text-white mx-1 rounded"
-                                                @click="changeRole(2, user.id)">Hacer
+                                                @click="changeRole(1, user.id)">Hacer
                                             supervisor
                                         </button>
                                         <button class="p-2 text-center bg-blue-600 text-white mx-1 rounded"
-                                                @click="changeRole(3, user.id)">Hacer
+                                                @click="changeRole(2, user.id)">Hacer
                                             administrador
                                         </button>
 
-                                        <button class="p-2 text-center bg-red-600 text-white mx-1 rounded"
-                                                @click="changeRole(0, user.id)">Remover
-                                            privilegios
-                                        </button>
 
                                     </td>
 
@@ -110,16 +106,14 @@ export default {
 
         },
         getUserRole(role) {
+
             if (role === 0) {
-                return 'Usuario sin privilegios';
-            }
-            if (role === 1) {
                 return 'Monitor';
             }
-            if (role === 2) {
+            if (role === 1) {
                 return 'Supervisor';
             }
-            if (role === 3) {
+            if (role === 2) {
                 return 'Administrador';
             }
         }
