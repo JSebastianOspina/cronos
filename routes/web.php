@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Laravel\Socialite\Facades\Socialite;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,19 +16,8 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->middleware(['auth']);
+Route::get('/', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class,'handleRoleRedirect'])->middleware(['auth'])->name('index');
 
-Route::get('/dashboard', function () {
-
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 //Ruta general para capturar errores
 Route::inertia('error', 'Error')->name('error');
@@ -108,5 +98,11 @@ Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorControl
 // RUTAS DE REPORTES
 Route::get('reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index')->middleware(['auth']);
 
+
+Route::get('/google/redirect', function () {
+    return Socialite::driver('google')->redirect();
+})->name('googleLogin');
+
+Route::get('/google/callback', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'handleGoogleCallback']);
 
 require __DIR__ . '/auth.php';

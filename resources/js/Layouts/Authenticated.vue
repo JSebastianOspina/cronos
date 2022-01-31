@@ -8,7 +8,7 @@
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex-shrink-0 flex items-center">
-                                <Link :href="route('dashboard')">
+                                <Link href="/">
                                     <img src="/images/g3_logo.png" class="block h-9 w-auto"/>
                                 </Link>
                             </div>
@@ -69,9 +69,15 @@
                                     </template>
 
                                     <template #content>
-                                        <BreezeDropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
-                                        </BreezeDropdownLink>
+
+
+                                        <button
+                                            @click="logout"
+                                            class="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">
+                                            Cerrar sesión
+                                        </button>
+
+
                                     </template>
                                 </BreezeDropdown>
                             </div>
@@ -123,8 +129,9 @@
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <BreezeResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
+
+                            <BreezeResponsiveNavLink @click="logout">
+                                Cerrar sesión
                             </BreezeResponsiveNavLink>
                         </div>
                     </div>
@@ -169,5 +176,16 @@ export default {
             showingNavigationDropdown: false,
         }
     },
+
+    methods: {
+
+        async logout() {
+            let url = route('logout');
+            await axios.post(url, {maxRedirects: 0});
+
+            location.reload();
+        },
+
+    }
 }
 </script>
