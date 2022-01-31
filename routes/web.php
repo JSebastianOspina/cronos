@@ -16,7 +16,7 @@ use Laravel\Socialite\Facades\Socialite;
 |
 */
 
-Route::get('/', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class,'handleRoleRedirect'])->middleware(['auth'])->name('index');
+Route::get('/', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'handleRoleRedirect'])->middleware(['auth'])->name('index');
 
 
 //Ruta general para capturar errores
@@ -98,6 +98,10 @@ Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorControl
 // RUTAS DE REPORTES
 Route::get('reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index')->middleware(['auth']);
 
+//Generate authorization URL for connection Google APP
+Route::get('authorize', [\App\Http\Controllers\GoogleCalendarController::class, 'generateAuthenticateUrl'])->name('generateAuthenticateUrl');
+//Handling response from google cloud (Oauth2)
+Route::get('authorize/callback', [\App\Http\Controllers\GoogleCalendarController::class, 'handleGoogleCallback'])->name('generateAuthenticateUrl');
 
 Route::get('/google/redirect', function () {
     return Socialite::driver('google')->redirect();

@@ -27,6 +27,20 @@ class GoogleCalendarApi
         $this->calendarId = $calendarId;
     }
 
+    public static function exchangeAuthorizationCodeForRefreshAndAccessToken($authorizationCode)
+    {
+        $curlCobain = new CurlCobain('https://oauth2.googleapis.com/token', 'POST');
+        $data = [
+            'client_id' => Config::getGoogleClientId(),
+            'client_secret' => Config::getGoogleClientSecret(),
+            'code' => $authorizationCode,
+            'grant_type' => 'authorization_code',
+            'redirect_uri' => url('authorize/callback')
+        ];
+        $curlCobain->setDataAsFormUrlEncoded($data);
+        return json_decode($curlCobain->makeRequest(), true);
+    }
+
     private function updateAccessToken(): void
     {
         $this->token = Config::getGoogleAccessToken();
@@ -188,7 +202,7 @@ class GoogleCalendarApi
             throw new GoogleCalendarApiException('No se proporcionó un ID de evento');
         }
 
-        $curlCobain = new CurlCobain('https://www.googleapis.com/calendar/v3/calendars/' . $this->calendarId . '/events/' . $eventId.'?sendUpdates=all', 'DELETE');
+        $curlCobain = new CurlCobain('https://www.googleapis.com/calendar/v3/calendars/' . $this->calendarId . '/events/' . $eventId . '?sendUpdates=all', 'DELETE');
         //Set authentication
         $token = $this->token;
         $curlCobain->setHeader('Authorization', "Bearer ${token}");

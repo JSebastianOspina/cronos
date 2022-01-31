@@ -95,8 +95,7 @@ class ScheduleController extends Controller
         //Validate if not exists
         if ($googleCalendar === null) {
             $schedule->delete();
-            return response('Horario de monitor borrado exitosamente, pero no se pudo eliminar el evento
-            de Google Calendar', 200);
+            return response('Horario de monitor borrado exitosamente, pero no se pudo encontrar ningun calendario de Google Asociado', 200);
         }
 
         try {
@@ -190,9 +189,4 @@ class ScheduleController extends Controller
         return response('', 201);
     }
 
-    public function handleEventCreation($calendar, $startDate, $endDate): void
-    {
-        $googleCalendarApi = new GoogleCalendarApi($calendar->google_calendar_id);
-        $googleCalendarApi->createEvent($startDate, $endDate, $calendar->dependency->name, $calendar->user->email);
-    }
 }
