@@ -27,61 +27,85 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
 
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard')->middleware(['auth']);
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+//Ruta general para capturar errores
+Route::inertia('error', 'Error')->name('error');
 
 
-// RUTAS DE USUARIOS
+/*---------------------------------------  RUTAS PARA ROL ADMINISTRADOR -------------------------------------*/
 
-Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index')->middleware(['auth']);
-Route::post('users/roles', [\App\Http\Controllers\UserController::class, 'updateRole'])->name('users.roles.update')->middleware(['auth']);
+/* GESTION DE USUARIOS Y ROLES */
+
+// Mostrar usuarios y sus roles
+Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index')->middleware(['auth', 'isAdmin']);
+// Actualizar el rol de un usuario
+Route::post('users/roles', [\App\Http\Controllers\UserController::class, 'updateRole'])->name('users.roles.update')->middleware(['auth', 'isAdmin']);
 
 
-// -----------------------------------------  RUTAS DE DEPENDENCIAS -----------------------------------------------
-//Gestion global de dependencias
-Route::get('dependencies', [\App\Http\Controllers\DependencyController::class, 'index'])->name('dependencies.index')->middleware(['auth']);
+/* GESTION GLOBAL DE DEPENDENCIAS */
+
+//Crear dependencia
 Route::post('dependencies', [\App\Http\Controllers\DependencyController::class, 'store'])->name('dependencies.store')->middleware(['auth']);
+//Borrar dependencia
 Route::delete('dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'destroy'])->name('dependencies.destroy')->middleware(['auth']);
 
-//Gestion de usuario dentro de la dependencia
+/*-----------------------------------  ACABA RUTAS PARA ROL ADMINISTRADOR -------------------------------------*/
+
+
+/*---------------------------------------  RUTAS ROL SUPERVISORES  --------------------------------------*/
+
+/*-----------> Rutas dependencias <-------------*/
+
+//Gestion global de dependencias
+Route::get('dependencies', [\App\Http\Controllers\DependencyController::class, 'index'])->name('dependencies.index')->middleware(['auth', 'isSupervisor']);
+//Ver usuarios pertenencientes a la dependencia
 Route::get('/dependencies/{dependency}/users', [\App\Http\Controllers\DependencyController::class, 'usersIndex'])
-    ->name('dependencies.users.index')->middleware(['auth']);
+    ->name('dependencies.users.index')->middleware(['auth', 'isSupervisor']);
+//Crear usuarios dentro de la dependencia (incluidos otros supervisores)
 Route::post('/dependencies/{dependency}/users', [\App\Http\Controllers\DependencyController::class, 'usersStore'])
-    ->name('dependencies.users.store')->middleware(['auth']);
+    ->name('dependencies.users.store')->middleware(['auth', 'isSupervisor']);
+//Eliminar un usuario de la dependencia (y su calendario asociado)
 Route::delete('/dependencies/{dependency}/users/{user}', [\App\Http\Controllers\DependencyController::class, 'usersDelete'])
-    ->name('dependencies.users.destroy')->middleware(['auth']);
+    ->name('dependencies.users.destroy')->middleware(['auth', 'isSupervisor']);
 
-// -----------------------------------------  ACABA RUTAS DE DEPENDENCIAS -------------------------------------------
+/*-----------> Rutas de Schedules <-------------*/
 
-// -----------------------------------------  RUTAS DE SCHEDULES ----------------------------------------------------
-Route::get('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'userSchedules'])->name('users.schedules.show')->middleware(['auth']);
-Route::get('createEvent', [\App\Http\Controllers\ScheduleController::class, 'handleEventCreation'])->middleware(['auth']);
-Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'StoreUserSchedule'])->name('users.schedules.store')->middleware(['auth']);
-
-//Borrar un Schedule
-Route::delete('schedules/{schedule}', [\App\Http\Controllers\ScheduleController::class, 'destroy'])->name('schedules.destroy')->middleware(['auth']);
-
-// -----------------------------------------  ACABA RUTAS DE SCHEDULES -----------------------------------------------
+//Ver agendas de un usuario
+Route::get('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'userSchedules'])->name('users.schedules.show')->middleware(['auth', 'isSupervisor']);
+// Crear un evento (agenda) a un usuario
+Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController::class, 'StoreUserSchedule'])->name('users.schedules.store')->middleware(['auth', 'isSupervisor']);
+//Borrar un evento
+Route::delete('schedules/{schedule}', [\App\Http\Controllers\ScheduleController::class, 'destroy'])->name('schedules.destroy')->middleware(['auth', 'isSupervisor']);
 
 
-// -----------------------------------------   RUTAS DE CHECK IN - OUT -----------------------------------------------
+/*---------------------------------------  ACABA ROL SUPERVISORES  -------------------------------------*/
 
+
+/*---------------------------------------  RUTAS ROL USUARIO -----------------------------------------*/
+
+/*-----------> Rutas de Check In - Out <-------------*/
+
+//Api, traer monitorias activas
 Route::get('api/getActiveRecords', [\App\Http\Controllers\RecordController::class, 'getActiveRecords'])->name('check.getActiveRecords')->middleware(['auth']);
+//Hacer check in o checkout en una monitoria activa
 Route::post('api/makeCheckInOrCheckout', [\App\Http\Controllers\RecordController::class, 'makeCheckInOrCheckout'])->name('check.makeCheckInOrCheckout')->middleware(['auth']);
+// Vista para desplegar info del api (monitorias activas)
 Route::get('check', [\App\Http\Controllers\RecordController::class, 'showCheckInOutView'])->name('check.showCheckInOutView')->middleware(['auth']);
-// -----------------------------------------  ACABA CHECK IN - OUT -----------------------------------------------
 
-// --------------------------------------------   RUTAS DE MONITORES -----------------------------------------------
 
-Route::get('monitors', [\App\Http\Controllers\MonitorController::class, 'index'])->name('monitors.index')->middleware(['auth']);
-Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorController::class, 'showUserCalendars'])->name('monitors.calendars')->middleware(['auth']);
+/*-----------> Rutas de monitores <-------------*/
+
+// API, Obtener calendarios monitor (JSON)
 Route::get('api/monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorController::class, 'getUserCalendars'])->name('api.monitors.getUserCalendars')->middleware(['auth']);
+//Vista calendarios monitor (enlace de calendar)
+Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorController::class, 'showUserCalendars'])->name('monitors.calendars')->middleware(['auth']);
 
 
-// -----------------------------------------  ACABA RUTAS DE MONITORES -----------------------------------------------
+//Route::get('monitors', [\App\Http\Controllers\MonitorController::class, 'index'])->name('monitors.index')->middleware(['auth']);
+/*---------------------------------  ACABA RUTAS ROL USUARIO ----------------------------*/
 
 // RUTAS DE REPORTES
-
-
 Route::get('reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index')->middleware(['auth']);
 
 
