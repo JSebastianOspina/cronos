@@ -141,6 +141,9 @@ class DependencyController extends Controller
             'dependency_id' => $dependency->id
         ]);
 
+        //Invite the user to the calendar
+        $googleCalendarApi->inviteUserToCalendar($calendar['id'], $user->email);
+
         //Attach the user to the dependency
         $user->dependencies()->attach($dependency->id, ['role' => $request->input('roleId')]);
 

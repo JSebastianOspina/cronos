@@ -41,11 +41,6 @@ class GoogleCalendarApi
         return json_decode($curlCobain->makeRequest(), true);
     }
 
-    private function updateAccessToken(): void
-    {
-        $this->token = Config::getGoogleAccessToken();
-    }
-
     /**
      * @throws \JsonException
      * @throws GoogleCalendarApiException
@@ -77,6 +72,14 @@ class GoogleCalendarApi
         return $requestAsObject;
     }
 
+    private function requestWasAuthenticated($request)
+    {
+        if (isset($request['error']) && $request['error']['code'] === 401) {
+            return false;
+        }
+        return true;
+    }
+
     public static function refreshAccessToken(): void
     {
 
@@ -101,20 +104,17 @@ class GoogleCalendarApi
         Log::info('Se ha actualizado el token, el: ' . Carbon::now()->toDateTimeString());
     }
 
+    private function updateAccessToken(): void
+    {
+        $this->token = Config::getGoogleAccessToken();
+    }
+
     private function requestHasError($request)
     {
         if (isset($request['error'])) {
             return true;
         }
         return false;
-    }
-
-    private function requestWasAuthenticated($request)
-    {
-        if (isset($request['error']) && $request['error']['code'] === 401) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -143,6 +143,44 @@ class GoogleCalendarApi
         //Verify if was not successful
         if (!$this->requestWasAuthenticated($requestAsObject)) {
             return $this->UpdateTokenAndRetryRequest('createCalendar', $calendarName);
+        }
+        return $requestAsObject;
+    }
+
+    private function UpdateTokenAndRetryRequest($method, ...$params)
+    {
+        //Exchange new token
+        self::refreshAccessToken();
+        //Update class instantiated token
+        $this->updateAccessToken();
+        //try again
+        return $this->$method(...$params);
+    }
+
+    public function inviteUserToCalendar($calendarId, $emailAddress): array
+    {
+        $endpoint = "https://www.googleapis.com/calendar/v3/calendars/${calendarId}/acl";
+        $curlCobain = new CurlCobain($endpoint, 'POST');
+        //Set authentication
+        $token = $this->token;
+        $curlCobain->setHeader('Authorization', "Bearer ${token}");
+
+        //Set body params
+        $data = [
+            'role' => 'reader',
+            'scope' => [
+                'type' => 'default'
+                //'value' => $emailAddress
+            ]
+        ];
+        $curlCobain->setDataAsJson($data);
+        //Make request
+        $request = $curlCobain->makeRequest();
+        $requestAsObject = json_decode($request, true, 512, JSON_THROW_ON_ERROR);
+
+        //Verify if was not successful
+        if (!$this->requestWasAuthenticated($requestAsObject)) {
+            return $this->UpdateTokenAndRetryRequest('inviteUserToCalendar', $calendarId, $emailAddress);
         }
         return $requestAsObject;
     }
@@ -221,16 +259,6 @@ class GoogleCalendarApi
         return $requestAsObject;
 
 
-    }
-
-    private function UpdateTokenAndRetryRequest($method, ...$params)
-    {
-        //Exchange new token
-        self::refreshAccessToken();
-        //Update class instantiated token
-        $this->updateAccessToken();
-        //try again
-        return $this->$method(...$params);
     }
 
 

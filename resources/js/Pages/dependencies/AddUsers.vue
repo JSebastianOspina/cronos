@@ -79,28 +79,28 @@
                                 </h2>
 
 
-                                <label for="user" class="text-gray-600 text-lg">Selecciona un usuario para añadirlo
+                                <label class="text-gray-600 text-lg" for="user">Selecciona un usuario para añadirlo
                                     a la
                                     dependencia</label>
-                                <select v-model="userId" class="block w-full rounded-lg text-gray-600 mb-2"
-                                        id="user">
+                                <select id="user" v-model="userId"
+                                        class="block w-full rounded-lg text-gray-600 mb-2">
                                     <option disabled>Seleccione un usuario</option>
                                     <option v-for="user in allUsers" :value="user.id">{{ user.name }}</option>
                                 </select>
 
-                                <label for="role" class="text-gray-600 text-lg">Selecciona el rol del usuario</label>
-                                <select v-model="roleId" class="block w-full rounded-lg text-gray-600 mb-2"
-                                        id="role">
+                                <label class="text-gray-600 text-lg" for="role">Selecciona el rol del usuario</label>
+                                <select id="role" v-model="roleId"
+                                        class="block w-full rounded-lg text-gray-600 mb-2">
                                     <option value="0">Monitor</option>
                                     <option value="1">Supervisor</option>
                                 </select>
 
                                 <button
+                                    :disabled="isLoading"
                                     class="bg-principal text-white font-bold p-3 rounded-md mt-3 text-center mx-auto inline-block w-full uppercase"
                                     @click="addUserToDependency"
                                 >Añadir usuario a la dependencia
                                 </button>
-
 
                             </div>
 
@@ -134,6 +134,8 @@ export default {
 
     methods: {
         addUserToDependency: async function () {
+
+            this.isLoading = true;
             let url = route('dependencies.users.store', {
                 dependency: this.dependency.id
             });
@@ -145,9 +147,11 @@ export default {
             try {
                 let request = await axios.post(url, data);
                 await Swal.fire('Proceso exitoso', request.data, "success");
+                this.isLoading = false;
                 location.reload();
             } catch (e) {
                 //Disparar ventana con información del error
+                this.isLoading = false;
                 Swal.fire('Ha ocurrido un error', e.response.data, 'error')
             }
         },
@@ -172,7 +176,8 @@ export default {
     data() {
         return {
             userId: 0,
-            roleId: 0
+            roleId: 0,
+            isLoading: false,
         }
     }
 
