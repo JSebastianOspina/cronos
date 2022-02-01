@@ -48,6 +48,9 @@
                                         usuarios
                                     </Link>
 
+                                    <Link :href="route('records.daily', {dependency:dependency.id})"
+                                          class="p-2 text-center bg-principal text-white mx-1 rounded">Gestionar turnos
+                                    </Link>
 
                                     <button
                                         @click="deleteDependency(dependency.id)"

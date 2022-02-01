@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dependency;
 use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -84,6 +85,42 @@ class RecordController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+    public function dailyDependencyRecords($dependencyId)
+    {
+        $today = Carbon::today();
+        $records = Record::with('monitor')->where('dependency_id', '=', $dependencyId)
+            ->orderBy('start_planned_date', 'asc')
+            ->where('start_planned_date', '>=', $today)->get();
+
+        return Inertia::render('records/DailyDependencyRecords', [
+            'records' => $records,
+            'today' => $today->toDateString()
+        ]);
+
+    }
+
+    public function updateSupervisorHour($recordId, Request $request)
+    {
+
+        $hour = $request->input('hour');
+        $type = $request->input('type');
+        $now = Carbon::today();
+        $now->setTimeFromTimeString($hour);
+
+        $record = Record::find($recordId);
+        if ($type === 'start') {
+            $record->start_approved_date = $hour;
+        }
+        if ($type === 'end') {
+            $record->end_approved_date = $hour;
+        }
+        $record->save();
+
+        return response()->json(['msg' => 'Se ha actualizado correctamente la hora del registro'], 200);
+
     }
 
     public function showCheckInOutView()

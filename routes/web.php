@@ -68,6 +68,10 @@ Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController:
 //Borrar un evento
 Route::delete('schedules/{schedule}', [\App\Http\Controllers\ScheduleController::class, 'destroy'])->name('schedules.destroy')->middleware(['auth', 'isSupervisor']);
 
+/*-----------> Rutas de records <-------------*/
+Route::get('records/dependency/{dependency}/daily', [\App\Http\Controllers\RecordController::class, 'dailyDependencyRecords'])->name('records.daily')->middleware(['auth', 'isSupervisor']);
+Route::patch('records/{record}', [\App\Http\Controllers\RecordController::class, 'updateSupervisorHour'])->name('records.updateSupervisorHour')->middleware(['auth', 'isSupervisor']);
+
 
 /*---------------------------------------  ACABA ROL SUPERVISORES  -------------------------------------*/
 
@@ -92,7 +96,6 @@ Route::get('api/monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorCon
 Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorController::class, 'showUserCalendars'])->name('monitors.calendars')->middleware(['auth']);
 
 
-//Route::get('monitors', [\App\Http\Controllers\MonitorController::class, 'index'])->name('monitors.index')->middleware(['auth']);
 /*---------------------------------  ACABA RUTAS ROL USUARIO ----------------------------*/
 
 // RUTAS DE REPORTES
