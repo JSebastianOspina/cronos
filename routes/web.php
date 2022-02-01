@@ -71,6 +71,7 @@ Route::delete('schedules/{schedule}', [\App\Http\Controllers\ScheduleController:
 /*-----------> Rutas de records <-------------*/
 Route::get('records/dependency/{dependency}/daily', [\App\Http\Controllers\RecordController::class, 'dailyDependencyRecords'])->name('records.daily')->middleware(['auth', 'isSupervisor']);
 Route::patch('records/{record}', [\App\Http\Controllers\RecordController::class, 'updateSupervisorHour'])->name('records.updateSupervisorHour')->middleware(['auth', 'isSupervisor']);
+Route::post('records/{record}/cancelMonitorHours', [\App\Http\Controllers\RecordController::class, 'cancelMonitorHours'])->name('records.cancelMonitorHours')->middleware(['auth', 'isSupervisor']);
 
 
 /*---------------------------------------  ACABA ROL SUPERVISORES  -------------------------------------*/

@@ -109,17 +109,37 @@ class RecordController extends Controller
         $type = $request->input('type');
         $now = Carbon::today();
         $now->setTimeFromTimeString($hour);
-
         $record = Record::find($recordId);
         if ($type === 'start') {
-            $record->start_approved_date = $hour;
+            $record->start_approved_date = $now->toDateTimeString();
         }
         if ($type === 'end') {
-            $record->end_approved_date = $hour;
+            $record->end_approved_date = $now->toDateTimeString();
         }
+
+        //Check if supervisor register both hours
+        if ($record->end_approved_date !== null && $record->start_approved_date !== null) {
+            $record->status = 'approved';
+        } else if ($record->end_monitor_date !== null && $record->start_monitor_date !== null) { //Check if user already check in and check out
+            $record->status = 'finished';
+        } else if ($record->start_monitor_date !== null) { //the user already do check in
+            $record->status = 'in_process';
+        }
+
         $record->save();
 
         return response()->json(['msg' => 'Se ha actualizado correctamente la hora del registro'], 200);
+
+    }
+
+    public function cancelMonitorHours($recordId)
+    {
+        $record = Record::find($recordId);
+        $record->status = 'canceled';
+        $record->start_approved_date = null;
+        $record->end_approved_date = null;
+        $record->save();
+        return response()->json(['msg' => 'Se han cancelado las horas del monitor. Se recargará la página'], 200);
 
     }
 

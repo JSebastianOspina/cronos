@@ -138,8 +138,17 @@ class DependencyController extends Controller
         if ($userCount > 0) {
             return response('El usuario ya pertenece a la dependencia. Si desea cambiar el rol, eliminelo y vuelvalo a agregar a la dependencia', 403);
         }
+
         //Get requested user
         $user = User::find($request->input('userId'));
+
+        //Check if the user is already admin from another dependency
+
+        if ($request->input('roleId') == 1 && $user->getSupervisedDepencyId() !== null) {
+            return response('El usuario ya es supervisor de otra dependencia. Por favor, eliminelo de esa
+            dependencia y agréguelo a esta', 403);
+
+        }
 
         //Create a calendar for the user
         $googleCalendarApi = new GoogleCalendarApi();
