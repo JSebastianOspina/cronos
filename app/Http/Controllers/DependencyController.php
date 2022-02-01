@@ -19,11 +19,27 @@ class DependencyController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+        if (auth()->user()->isAdmin()) {
+            //Show all dependencies to admin
+            $dependencies = Dependency::with('users')->get();
+        } else {
+            //If not, is supervisor, just show dependencies that it supervises.
+            $dependencies = DB::table('dependency_user')
+                ->select(['dependencies.id', 'dependencies.name'])
+                ->where('user_id', '=', $user->id)
+                ->where('role', '=', 1)
+                ->join('dependencies', 'dependencies.id', '=', 'dependency_user.dependency_id')
+                ->get();
 
-        /*$dependency = Dependency::first();
-        dd($dependency);*/
+            foreach ($dependencies as $dependency) {
+                $dependency->users = DB::table('dependency_user')
+                    ->where('dependency_id', '=', $dependency->id)->get();
+            }
 
-        $dependencies = Dependency::with('users')->get();
+        }
+
+
         return Inertia::render('dependencies/Index', [
             'isAdmin' => auth()->user()->isAdmin(),
             'dependencies' => $dependencies
