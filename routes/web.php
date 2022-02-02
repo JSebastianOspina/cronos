@@ -99,6 +99,14 @@ Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorControl
 
 /*---------------------------------  ACABA RUTAS ROL USUARIO ----------------------------*/
 
+
+/*-----------> Rutas de records <-------------*/
+
+//Crea records apartir de schedules que sean periódicos
+Route::get('createPeriodicRecords', [\App\Http\Controllers\RecordController::class, 'createPeriodicRecords'])->name('createPeriodicRecords');
+
+
+
 // RUTAS DE REPORTES
 Route::get('reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index')->middleware(['auth']);
 

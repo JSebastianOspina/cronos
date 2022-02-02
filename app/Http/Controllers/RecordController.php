@@ -6,6 +6,7 @@ use App\Models\Dependency;
 use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class RecordController extends Controller
@@ -184,6 +185,41 @@ class RecordController extends Controller
             return response()->json(['msg' => 'Check out realizado exitosamente'], 200);
         }
 
+        return response()->json(['msg' => 'Check out realizado exitosamente'], 200);
 
+    }
+
+    public function createPeriodicRecords()
+    {
+        $now = Carbon::now();
+
+        $schedules = \DB::table('schedules')
+            ->where('type', '=', 'periodic')
+            ->where('day_of_week', '=', $now->dayOfWeek)
+            ->get();
+
+        $counter = 0;
+        foreach ($schedules as $schedule) {
+
+            $startDate = Carbon::today();
+            $startDate->setTimeFromTimeString($schedule->start_hour);
+
+            $endDate = Carbon::today();
+            $endDate->setTimeFromTimeString($schedule->end_hour);
+
+            Record::create([
+                'dependency_id' => $schedule->dependency_id,
+                'monitor_id' => $schedule->monitor_id,
+                'supervisor_id' => $schedule->supervisor_id,
+                'start_planned_date' => $startDate->toDateTimeString(),
+                'end_planned_date' => $endDate->toDateTimeString(),
+                'status' => 'created',
+            ]);
+            $counter++;
+        }
+
+        Log::info('Se han creado ' . $counter . ' records. Proceso realizado el ' . Carbon::now()->toDateTimeString());
+
+        return 'Se han creado ' . $counter . ' records. Proceso realizado el ' . Carbon::now()->toDateTimeString();
     }
 }
