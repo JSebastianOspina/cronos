@@ -158,7 +158,7 @@ class ScheduleController extends Controller
             $endDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('end_hour'));
             //ask google calendar to create the event
             $googleCalendarApi = new GoogleCalendarApi($calendar->google_calendar_id);
-            $googleCalendarEvent = $googleCalendarApi->createEvent($startDate, $endDate, $calendar->dependency->name, $calendar->user->email);
+            $googleCalendarEvent = $googleCalendarApi->createEvent($startDate, $endDate, $calendar->dependency->name, $calendar->user->email, $request->input('type') === 'periodic');
         } catch (\RuntimeException $e) {
             return response('Ha ocurrido el siguiente error: ' . $e->getMessage(), 500);
         }

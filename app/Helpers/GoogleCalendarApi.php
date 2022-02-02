@@ -185,7 +185,7 @@ class GoogleCalendarApi
         return $requestAsObject;
     }
 
-    public function createEvent($startHour, $endHour, $dependencyName, $monitorEmail)
+    public function createEvent($startHour, $endHour, $dependencyName, $monitorEmail, $isRecurrentEvent = false)
     {
 
         $calendarId = $this->calendarId;
@@ -219,8 +219,12 @@ class GoogleCalendarApi
                 [
                     'email' => $monitorEmail
                 ]
-            ]
+            ],
+
         ];
+        if ($isRecurrentEvent === true) {
+            $data['recurrence'] = ['RRULE:FREQ=WEEKLY'];
+        }
         $curlCobain->setDataAsJson($data);
         $createEventRequest = $curlCobain->makeRequest();
         $createEventRequestObject = json_decode($createEventRequest, true);

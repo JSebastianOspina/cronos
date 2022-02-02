@@ -149,6 +149,8 @@ class DependencyController extends Controller
             dependencia y agréguelo a esta', 403);
 
         }
+        //The request verification ends, proceed with the rest of the method.
+
 
         //Create a calendar for the user
         $googleCalendarApi = new GoogleCalendarApi();
