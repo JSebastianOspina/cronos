@@ -21,8 +21,8 @@ class Kernel extends ConsoleKernel
             \Log::info('Ejecutado el cron job a las ' . Carbon::now()->toDateTimeString());
             RecordController::createPeriodicRecords();
         })
-            ->everyMinute();
-        //->dailyAt('01:00');
+            //->everyMinute();
+            ->dailyAt('01:00');
     }
 
     /**
