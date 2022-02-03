@@ -58,7 +58,7 @@
                                         </Link>
                                     </button>
                                     <button class="p-2 text-center bg-red-600 text-white mx-1 rounded"
-                                            @click="deleteUserFromDependency(dependency.id, user.id)">Eliminar
+                                            @click="showConfirmDeleteModal(dependency.id, user.id)">Eliminar
                                         de la dependencia
                                     </button>
 
@@ -154,6 +154,22 @@ export default {
                 this.isLoading = false;
                 Swal.fire('Ha ocurrido un error', e.response.data, 'error')
             }
+        },
+        showConfirmDeleteModal: async function (dependencyId, userId) {
+            const modal = await Swal.fire({
+                title: 'Cuidado, esta acción es irreversible',
+                text: 'El usuario será eliminado y todos los registros asociados también',
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Entiendo el riesgo, eliminar usuario',
+                allowOutsideClick: false,
+            })
+
+            if (modal.isConfirmed) {
+                this.deleteUserFromDependency(dependencyId, userId);
+            }
+
         },
 
         deleteUserFromDependency: async function (dependencyId, userId) {

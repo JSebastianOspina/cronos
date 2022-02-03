@@ -145,6 +145,52 @@ class ScheduleController extends Controller
         if ($dependencyId === null) {
             return response('No puedes gestionar el horario de un usuario si no eres supervisor de la dependencia', 403);
         }
+
+        //Verify if the monitor doesn't have a schedule in the specific time range already
+        $userSchedules = \DB::table('schedules')->where('monitor_id', '=', $userId)->get();
+        foreach ($userSchedules as $schedule) {
+
+
+            //Create carbon instace of desired hours
+            $startDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('start_hour'));
+            $endDate = Carbon::createFromFormat('Y-m-d H:i', $request->input('date') . ' ' . $request->input('end_hour'));
+
+            //schedule hours as carbon instance
+            $userScheduleStartDate = Carbon::createFromFormat('Y-m-d H:i:s', $schedule->date . ' ' . $schedule->start_hour);
+            $userScheduleEndDate = Carbon::createFromFormat('Y-m-d H:i:s', $schedule->date . ' ' . $schedule->end_hour);
+
+            //Check if the desired hours are between that range
+
+            if ($startDate->isBetween($userScheduleStartDate, $userScheduleEndDate) === true) {
+                $dependency = \DB::table('dependencies')->where('id', $schedule->dependency_id)
+                    ->first();
+
+                if ($dependency === null) {
+                    return response('Ha ocurrido un error, por favor intentalo mas tarde', 500);
+                }
+
+                $errorMessage = 'No se ha podido crear el evento. El monitor tiene un horario activo comprendido entre
+                las ' . $userScheduleStartDate->toTimeString() . ' y las ' . $userScheduleEndDate->toTimeString() . ' en la dependencia
+                 ' . $dependency->name;
+                return response($errorMessage, 403);
+            }
+
+            if ($endDate->isBetween($userScheduleStartDate, $userScheduleEndDate) === true) {
+
+                $dependency = \DB::table('dependencies')->where('id', $schedule->dependency_id)
+                    ->first();
+                if ($dependency === null) {
+                    return response('Ha ocurrido un error, por favor intentalo mas tarde', 500);
+                }
+                $errorMessage = 'No se ha podido crear el evento. El monitor tiene un horario activo comprendido entre
+                las ' . $userScheduleStartDate->toTimeString() . ' y las ' . $userScheduleEndDate->toTimeString() . ' en la dependencia
+                 ' . $dependency->name;
+                return response($errorMessage, 403);
+            }
+
+        }
+
+
         // business logic validation (valid calendar)
         $calendar = GoogleCalendar::where('user_id', $userId)->where('dependency_id', $dependencyId)->first();
         if ($calendar === null) {
