@@ -49,11 +49,11 @@
                                     </Link>
 
                                     <Link :href="route('records.daily', {dependency:dependency.id})"
-                                          class="p-2 text-center bg-principal text-white mx-1 rounded">Gestionar turnos
+                                          class="p-2 text-center bg-principal text-white mx-1 rounded">Gestionar eventos
                                     </Link>
 
                                     <button
-                                        @click="deleteDependency(dependency.id)"
+                                        @click="showConfirmDeleteModal(dependency.id)"
                                         v-if="isAdmin"
                                         class="p-2 text-center bg-red-600 text-white mx-1 rounded">Borrar
                                         dependencia
@@ -149,6 +149,23 @@ export default {
                 //Disparar ventana con información del error
                 Swal.fire('Ha ocurrido un error', e.response.data, 'error')
             }
+        },
+
+        showConfirmDeleteModal: async function (dependencyId) {
+            const modal = await Swal.fire({
+                title: 'Cuidado, esta acción es irreversible',
+                text: 'Todos los usuarios y horarios relacionadas a la dependencia serán eliminados',
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Entiendo el riesgo, borrar dependencia',
+                allowOutsideClick: false,
+            })
+
+            if (modal.isConfirmed) {
+                this.deleteDependency(dependencyId);
+            }
+
         }
 
     }

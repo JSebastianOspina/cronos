@@ -54,7 +54,7 @@
                                             :href="route('users.schedules.show',{
                                               user: user.id,
                                               dependency:dependency.id
-                                          })">Gestionar agenda
+                                          })">Gestionar horario
                                         </Link>
                                     </button>
                                     <button class="p-2 text-center bg-red-600 text-white mx-1 rounded"

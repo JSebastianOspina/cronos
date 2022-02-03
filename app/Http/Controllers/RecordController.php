@@ -92,9 +92,12 @@ class RecordController extends Controller
     public function dailyDependencyRecords($dependencyId)
     {
         $today = Carbon::today();
+        $tomorrow = Carbon::tomorrow();
         $records = Record::with('monitor')->where('dependency_id', '=', $dependencyId)
             ->orderBy('start_planned_date', 'asc')
-            ->where('start_planned_date', '>=', $today)->get();
+            ->where('start_planned_date', '>=', $today)
+            ->where('start_planned_date', '<=', $tomorrow)
+            ->get();
 
         return Inertia::render('records/DailyDependencyRecords', [
             'records' => $records,
@@ -189,7 +192,7 @@ class RecordController extends Controller
 
     }
 
-    public function createPeriodicRecords()
+    public static function createPeriodicRecords(): string
     {
         $now = Carbon::now();
 

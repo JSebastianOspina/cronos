@@ -9,13 +9,42 @@
                     <div class="p-6 bg-white border-b border-gray-200">
                         <div class="flex justify-between items-center mb-5">
                             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                                Agendas del usuario {{ user.name }}
+                                Horario del usuario {{ user.name }}
                             </h2>
                             <button
                                 @click="openCreateEventModal"
                                 class="p-2 text-center bg-principal text-white mx-1 rounded">Crear nuevo evento
                             </button>
                         </div>
+                        <p>
+                            Si desea crear un nuevo evento de clic al botón "crear nuevo evento" y seleccione una de
+                            estas
+                            opciones:
+                        </p>
+                        <ul class="my-3">
+                            <li class="mb-2">
+                                <strong>Evento único:</strong> Este será registrado en Google Calendar automáticamente.
+                                Este evento no se repite.
+
+                            </li>
+
+                            <li>
+                                <strong>Evento periódico:</strong> Este generará una serie de eventos que se repiten
+                                todas las semanas <strong>un día despues de su creación y en el día de la semana
+                                seleccionado</strong>. <br>
+                                <em>Por ejemplo: si crea un evento periódico para el miercoles 2 de febrero de 2022 a
+                                    las 3PM, este se generará automáticamente todos los miercoles, a las 3PM
+                                    <strong>a partir del día siguiente (jueves 3 de febrero de 2022)</strong></em>.
+
+                            </li>
+
+                        </ul>
+                        <p>
+                            <strong>TIP:</strong> Si desea crear un evento periódico <strong>para el día de hoy</strong>
+                            y que este evento <strong> sea agendado inmediatamente al monitor, </strong> debe crear un
+                            evento único (que generará el evento ese mismo día) y posteriormente un evento periódico que
+                            generará los eventos de las proximas semanas.
+                        </p>
 
                         <table class="items-center bg-transparent border-collapse mx-auto ">
                             <thead>

@@ -9,7 +9,7 @@
                     <div class="p-6 bg-white border-b border-gray-200">
                         <div class="mb-5">
                             <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-2">
-                                Administrar registros del {{ today }}
+                                Administrar eventos del {{ today }}
                             </h2>
 
                             <p>
@@ -49,8 +49,7 @@
                             </div>
                             <p class="mt-4">
                                 TIP: Para desplazarse horizontalmente en la tabla mantenga oprimido shift mientras hace
-                                scroll
-                                con la rueda del ratón
+                                scroll con la rueda del ratón.
                             </p>
                         </div>
                         <div class="overflow-auto" id="tableContainer">

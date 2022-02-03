@@ -177,20 +177,23 @@ class ScheduleController extends Controller
             'google_event_id' => $googleCalendarEvent['id']
         ]);
 
-        //Finally, migrate the data to the records table
+        //Finally, migrate the data to the records table IF IS UNIQUE
 
-        Record::create([
-            'dependency_id' => $dependencyId,
-            'monitor_id' => $userId,
-            'supervisor_id' => auth()->user()->id,
-            'start_planned_date' => $startDate,
-            'end_planned_date' => $endDate,
-            'status' => 'created',
-        ]);
+        if ($request->input('type') === 'unique') {
+            Record::create([
+                'dependency_id' => $dependencyId,
+                'monitor_id' => $userId,
+                'supervisor_id' => auth()->user()->id,
+                'start_planned_date' => $startDate,
+                'end_planned_date' => $endDate,
+                'status' => 'created',
+            ]);
 
-        return response('', 201);
+            return response('El evento ha sido creado correctamente. También se ha creado el registro de monitoria (turno) para el día programado', 201);
+        }
+
+        return response('El evento PERIODICO ha sido creado correctamente. El registro será creado a la 1 AM del día programado y se repitirá este comportamiento todas las semanas', 201);
     }
-
 
 
 }
