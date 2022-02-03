@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->call(function () {
             \Log::info('Ejecutado el cron job a las ' . Carbon::now()->toDateTimeString());
-            //RecordController::createPeriodicRecords();
+            RecordController::createPeriodicRecords();
         })
             ->everyMinute();
         //->dailyAt('01:00');

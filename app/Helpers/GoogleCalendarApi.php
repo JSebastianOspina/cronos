@@ -229,7 +229,7 @@ class GoogleCalendarApi
         $createEventRequest = $curlCobain->makeRequest();
         $createEventRequestObject = json_decode($createEventRequest, true);
         if (!$this->requestWasAuthenticated($createEventRequestObject)) {
-            return $this->UpdateTokenAndRetryRequest('createEvent', $startHour, $endHour, $dependencyName, $monitorEmail);
+            return $this->UpdateTokenAndRetryRequest('createEvent', $startHour, $endHour, $dependencyName, $monitorEmail, $isRecurrentEvent);
         }
         return $createEventRequestObject;
 
