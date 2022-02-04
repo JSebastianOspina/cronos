@@ -79,10 +79,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <p class="mt-4">
-                                TIP: Para desplazarse horizontalmente en la tabla mantenga oprimido shift mientras hace
-                                scroll con la rueda del ratón.
-                            </p>
+
                         </div>
                         <div class="overflow-auto" id="tableContainer">
                             <table class="items-center bg-transparent border-collapse mx-auto ">
@@ -507,17 +504,3 @@ export default {
     }
 }
 </script>
-
-<style>
-#tableContainer::-webkit-scrollbar {
-    display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-#tableContainer {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-}
-</style>
-
-
