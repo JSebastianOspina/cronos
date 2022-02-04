@@ -48,15 +48,14 @@
 
                                 <td class="px-6 align-middle whitespace-nowrap p-4 text-center ">
 
-                                    <button class="p-2 text-center bg-principal text-white mx-1 rounded">
-
-                                        <Link
-                                            :href="route('users.schedules.show',{
+                                    <Link
+                                        class="px-2 py-2.5 text-center bg-principal text-white mx-1 rounded"
+                                        :href="route('users.schedules.show',{
                                               user: user.id,
                                               dependency:dependency.id
                                           })">Gestionar horario
-                                        </Link>
-                                    </button>
+                                    </Link>
+
                                     <button class="p-2 text-center bg-red-600 text-white mx-1 rounded"
                                             @click="showConfirmDeleteModal(dependency.id, user.id)">Eliminar
                                         de la dependencia

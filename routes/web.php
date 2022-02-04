@@ -69,7 +69,9 @@ Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController:
 Route::delete('schedules/{schedule}', [\App\Http\Controllers\ScheduleController::class, 'destroy'])->name('schedules.destroy')->middleware(['auth', 'isSupervisor']);
 
 /*-----------> Rutas de records <-------------*/
-Route::get('records/dependency/{dependency}/daily', [\App\Http\Controllers\RecordController::class, 'dailyDependencyRecords'])->name('records.daily')->middleware(['auth', 'isSupervisor']);
+Route::get('records/dependencies/{dependency}/daily', [\App\Http\Controllers\RecordController::class, 'dailyDependencyRecords'])->name('records.daily')->middleware(['auth', 'isSupervisor']);
+Route::get('records/dependencies/{dependency}', [\App\Http\Controllers\RecordController::class, 'filterDependencyRecordsView'])->name('records.filter')->middleware(['auth', 'isSupervisor']);
+Route::get('api/records/dependencies/{dependency}', [\App\Http\Controllers\RecordController::class, 'filterDependencyRecords'])->name('api.records.filter')->middleware(['auth', 'isSupervisor']);
 Route::patch('records/{record}', [\App\Http\Controllers\RecordController::class, 'updateSupervisorHour'])->name('records.updateSupervisorHour')->middleware(['auth', 'isSupervisor']);
 Route::post('records/{record}/cancelMonitorHours', [\App\Http\Controllers\RecordController::class, 'cancelMonitorHours'])->name('records.cancelMonitorHours')->middleware(['auth', 'isSupervisor']);
 
@@ -104,7 +106,6 @@ Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorControl
 
 //Crea records apartir de schedules que sean periódicos
 Route::get('createPeriodicRecords', [\App\Http\Controllers\RecordController::class, 'createPeriodicRecords'])->name('createPeriodicRecords');
-
 
 
 // RUTAS DE REPORTES

@@ -106,6 +106,36 @@ class RecordController extends Controller
 
     }
 
+    public function filterDependencyRecordsView($dependencyId)
+    {
+        $dependency = Dependency::find($dependencyId);
+        if ($dependency === null) {
+            return 'La dependencia seleccionada no existe...';
+        }
+
+        return Inertia::render('records/DependencyRecords', [
+            'dependency' => $dependency
+        ]);
+
+    }
+
+    public function filterDependencyRecords($dependencyId, Request $request)
+    {
+
+        $records = Record::with('monitor')->where('dependency_id', '=', $dependencyId)
+            ->orderBy('start_planned_date', 'asc')
+            ->where('start_planned_date', '>=', $request->input('startDate'))
+            ->where('start_planned_date', '<=', $request->input('endDate'))
+            ->get();
+
+        if (count($records) === 0) {
+            return response()->json(['error' => 'No hay registros para este rango horario'], 404);
+
+        }
+
+        return response()->json(['records' => $records], 200);
+    }
+
     public function updateSupervisorHour($recordId, Request $request)
     {
 
@@ -136,12 +166,31 @@ class RecordController extends Controller
 
     }
 
-    public function cancelMonitorHours($recordId)
+    public function cancelMonitorHours($recordId, Request $request)
     {
+        $request->validate([
+            'observation' => 'required|string'
+        ]);
+
         $record = Record::find($recordId);
         $record->status = 'canceled';
         $record->start_approved_date = null;
         $record->end_approved_date = null;
+
+        //Generate observation model
+        $observation = [
+            'date' => Carbon::now()->toDateTimeString(),
+            'message' => $request->observation,
+            'monitor' => auth()->user()->name
+        ];
+        if ($record->observation === null) {
+            $record->observation = [json_encode($observation)];
+        } else {
+            $actualObservation = json_decode($record->observation, true);
+            $actualObservation[] = $observation;
+            $record->observation = json_encode($actualObservation);
+        }
+
         $record->save();
         return response()->json(['msg' => 'Se han cancelado las horas del monitor. Se recargará la página'], 200);
 
