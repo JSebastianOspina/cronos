@@ -13,7 +13,7 @@
                             </h2>
 
                             <p>
-                                Para aprobar las horas de un monitor (registrar estas horas como validas) de
+                                Para aprobar las horas de un monitor (registrar estas horas como válidas) de
                                 clic al botón
                                 "Aprobar".
                             </p>

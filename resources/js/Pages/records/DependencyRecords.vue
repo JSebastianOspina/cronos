@@ -13,6 +13,7 @@
                                 <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-2">
                                     Administrar eventos de la dependencia {{ dependency.name }}
                                 </h2>
+
                                 <button class="bg-principal p-2 text-white rounded"
                                         @click="setDatesForTodayAndTomorrow()">
                                     Ver registros de hoy
@@ -42,12 +43,9 @@
                                            class="px-3 py-2 rounded  border-indigo-400"
                                            @input="changeFilterDates">
                                 </div>
-
-
                             </div>
-
                             <p>
-                                Para aprobar las horas de un monitor (registrar estas horas como validas) de
+                                Para aprobar las horas de un monitor (registrar estas horas como válidas) de
                                 clic al botón
                                 "Aprobar".
                             </p>
@@ -193,6 +191,17 @@
                                             @click="cancelHours(record.id)"
                                             class="p-2 text-center bg-red-600 text-white mx-1 rounded">Cancelar
                                         </button>
+                                        <button
+                                            @click="openObservationsModal(record.id)"
+                                            class="p-2 text-center bg-red-600 text-white mx-1 rounded bg-principal">Ver
+                                            observaciones
+                                        </button>
+
+                                        <button
+                                            @click="makeObservation(record.id)"
+                                            class="p-2 text-center bg-red-600  mx-1 rounded bg-secundario">Hacer
+                                            observación
+                                        </button>
 
 
                                     </td>
@@ -260,6 +269,88 @@ export default {
     },
 
     methods: {
+        async openObservationsModal(recordId) {
+
+            //find the specified record
+            let record = this.records.find((record) => {
+                return record.id === recordId;
+            });
+            if (record.length === 0) {
+                Toastify({
+                    text: 'Ha ocurrido un error al intentar obtener las observaciones del usuario'
+                }).showToast();
+                return;
+            }
+
+            let observations = JSON.parse(record.observation);
+            //Doesn't have records
+            if(observations === null){
+                Toastify({
+                    text: 'No hay observaciones para este registro'
+                }).showToast();
+                return;
+            }
+
+            //Create html table
+            let tableRows = '';
+            observations.forEach(observation => {
+                tableRows += `<tr><td class="p-3">${observation.date}</td><td class="p-3">${observation.message}</td><td class="p-3">${observation.supervisor}</td><td class="p-3">${observation.status}</td></tr>`;
+            })
+            let table =
+                '<table class="border-collapse w-full"><tr><th>Fecha</th><th>Mensaje</th><th>Supervisor</th><th>Estado</th></tr>' +
+                '<tbody>' + tableRows +
+                '</tbody></table>';
+            await Swal.fire({
+                title: 'Observaciones',
+                html: table,
+                width: '80rem'
+            });
+
+        },
+        async makeObservation(recordId) {
+            const {value: observationMessage, isDismissed} = await Swal.fire({
+                title: 'Por favor, añade una observación',
+                cancelButtonText: 'Cancelar',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                input: 'text',
+                inputLabel: 'Mensaje descriptivo que explique la eventualidad',
+                inputPlaceholder: 'Ejemplo: El monitor llegó media hora tarde.',
+                confirmButtonText: 'Guardar observación',
+                inputValidator(inputValue) {
+                    if (!inputValue) {
+                        return 'Debes introducir una observación';
+
+                    }
+                }
+            })
+            //The user cancel the operation
+            if (isDismissed) {
+                Toastify({
+                    text: 'Haz cancelado el proceso. No se realizó la observación'
+                }).showToast();
+                return;
+            }
+            //Retrieve url
+            let url = route('records.observations.store', {record: recordId});
+            try {
+                //Make request, sending the user observation in the body
+                let request = await axios.post(url, {
+                    observation: observationMessage
+                });
+                Toastify({
+                    text: request.data.msg,
+                }).showToast();
+
+            } catch (error) {
+                //Show error message
+                Toastify({
+                    text: error.response.data.error
+                }).showToast();
+            }
+            //Update the data again
+            this.changeFilterDates();
+        },
 
         setDatesForTodayAndTomorrow() {
             let today = new Date();

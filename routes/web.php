@@ -74,6 +74,7 @@ Route::get('records/dependencies/{dependency}', [\App\Http\Controllers\RecordCon
 Route::get('api/records/dependencies/{dependency}', [\App\Http\Controllers\RecordController::class, 'filterDependencyRecords'])->name('api.records.filter')->middleware(['auth', 'isSupervisor']);
 Route::patch('records/{record}', [\App\Http\Controllers\RecordController::class, 'updateSupervisorHour'])->name('records.updateSupervisorHour')->middleware(['auth', 'isSupervisor']);
 Route::post('records/{record}/cancelMonitorHours', [\App\Http\Controllers\RecordController::class, 'cancelMonitorHours'])->name('records.cancelMonitorHours')->middleware(['auth', 'isSupervisor']);
+Route::post('records/{record}/observations', [\App\Http\Controllers\RecordController::class, 'makeObservation'])->name('records.observations.store')->middleware(['auth', 'isSupervisor']);
 
 
 /*---------------------------------------  ACABA ROL SUPERVISORES  -------------------------------------*/

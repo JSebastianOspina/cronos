@@ -138,12 +138,15 @@ class RecordController extends Controller
 
     public function updateSupervisorHour($recordId, Request $request)
     {
-
+        //Prepare variables
         $hour = $request->input('hour');
         $type = $request->input('type');
         $now = Carbon::today();
         $now->setTimeFromTimeString($hour);
+
+        //Find record
         $record = Record::find($recordId);
+        //Assign to start or end approved date
         if ($type === 'start') {
             $record->start_approved_date = $now->toDateTimeString();
         }
@@ -160,9 +163,23 @@ class RecordController extends Controller
             $record->status = 'in_process';
         }
 
+        //Save everything
         $record->save();
 
         return response()->json(['msg' => 'Se ha actualizado correctamente la hora del registro'], 200);
+
+    }
+
+    public function makeObservation($recordId, Request $request)
+    {
+        $request->validate([
+            'observation' => 'required|string'
+        ]);
+
+        $record = Record::find($recordId);
+        $this->updateRecordObservation($record, $request->input('observation'), 'Proporcionado en comentario');
+        $record->save();
+        return response()->json(['msg' => 'La observación ha sido creada exitosamente'], 200);
 
     }
 
@@ -176,24 +193,29 @@ class RecordController extends Controller
         $record->status = 'canceled';
         $record->start_approved_date = null;
         $record->end_approved_date = null;
+        $this->updateRecordObservation($record, $request->input('observation'), 'canceled');
 
+        $record->save();
+        return response()->json(['msg' => 'Se han cancelado las horas del monitor. Se recargará la página'], 200);
+
+    }
+
+    private function updateRecordObservation(&$record, $message, $status)
+    {
         //Generate observation model
         $observation = [
             'date' => Carbon::now()->toDateTimeString(),
-            'message' => $request->observation,
-            'monitor' => auth()->user()->name
+            'message' => $message,
+            'supervisor' => auth()->user()->name,
+            'status' => $status
         ];
         if ($record->observation === null) {
-            $record->observation = [json_encode($observation)];
+            $record->observation = json_encode([$observation]);
         } else {
             $actualObservation = json_decode($record->observation, true);
             $actualObservation[] = $observation;
             $record->observation = json_encode($actualObservation);
         }
-
-        $record->save();
-        return response()->json(['msg' => 'Se han cancelado las horas del monitor. Se recargará la página'], 200);
-
     }
 
     public function showCheckInOutView()
