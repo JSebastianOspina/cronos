@@ -128,8 +128,8 @@ export default {
 
     methods: {
         getWeekDay: function (weekDayNumber) {
-            let days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
-            return days[weekDayNumber - 1];
+            let days = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+            return days[weekDayNumber];
         },
 
 
