@@ -156,12 +156,36 @@ export default {
                 cancelButtonText: 'Cancelar',
                 showCancelButton: true,
                 allowOutsideClick: false,
-                preConfirm: () => {
+                preConfirm: async () => {
+                    //Save variables
+                    let date = document.getElementById('date').value;
+                    let start_hour = document.getElementById('start_hour').value;
+                    let end_hour = document.getElementById('end_hour').value;
+                    let type = document.getElementById('type').value;
+                    //Variables for verification
+                    let userDate = date;
+                    let now = new Date();
+                    let nowYear = now.toISOString().substr(0, 4);
+                    let userYear = userDate.substr(0, 4);
+                    if (parseInt(nowYear) > parseInt(userYear)) {
+                        const {isConfirmed} = await Swal.fire({
+                            title: '¡Cuidado!',
+                            text: 'Estás intentando crear un evento para un año diferente al año actual',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cancelar operación',
+                            confirmButtonText: 'Entiendo el riesgo, deseo continuar',
+                        });
+                        if (!isConfirmed) {
+                            return null;
+                        }
+
+                    }
                     return {
-                        date: document.getElementById('date').value,
-                        start_hour: document.getElementById('start_hour').value,
-                        end_hour: document.getElementById('end_hour').value,
-                        type: document.getElementById('type').value,
+                        date,
+                        start_hour,
+                        end_hour,
+                        type,
                     }
 
                 }
