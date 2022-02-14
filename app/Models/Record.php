@@ -76,15 +76,16 @@ class Record extends Model
         $now = Carbon::now();
         return \DB::table('records')
             ->select([
-                'records.start_planned_date','records.end_planned_date', 'dependencies.name',
-                'records.status','records.id'
+                'records.start_planned_date', 'records.end_planned_date', 'dependencies.name',
+                'records.status', 'records.id'
             ])
             ->where('start_planned_date', '<=', $now->toDateTimeString())
             ->where('end_planned_date', '>', $now->toDateTimeString())
             ->where('monitor_id', '=', auth()->user()->id)
             ->where('status', '=', 'created')
             ->orWhere(function ($query) {
-                $query->where('status', 'in_process');
+                $query->where('status', 'in_process')
+                    ->where('monitor_id', '=', auth()->user()->id);
             })
             ->join('dependencies', 'dependencies.id', '=', 'records.dependency_id')
             ->get();
