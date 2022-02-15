@@ -45,6 +45,7 @@
 import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue'
 import {Head} from '@inertiajs/inertia-vue3';
 import Swal from 'sweetalert2';
+import dayjs from 'dayjs';
 
 export default {
     components: {
@@ -75,11 +76,11 @@ export default {
 
         formatDates() {
             this.records.forEach((record) => {
-                let fullStartDate = new Date(record.start_planned_date);
-                let fullEndDate = new Date(record.end_planned_date);
-                record.start_hour = fullStartDate.getHours() + ':' + fullStartDate.getMinutes();
-                record.end_hour = fullEndDate.getHours() + ':' + fullEndDate.getMinutes();
-                record.date = this.getWeekDay(fullStartDate.getDay()) + ' ' + fullStartDate.getDate() + ' de ' + this.getMonthName(fullStartDate.getMonth());
+                let fullStartDate =  dayjs(record.start_planned_date);
+                let fullEndDate =  dayjs(record.end_planned_date);
+                record.start_hour = fullStartDate.hour() + ':' + fullStartDate.minute();
+                record.end_hour = fullEndDate.hour() + ':' + fullEndDate.minute();
+                record.date = this.getWeekDay(fullStartDate.day()) + ' ' + fullStartDate.date() + ' de ' + this.getMonthName(fullStartDate.month());
             })
         },
 
