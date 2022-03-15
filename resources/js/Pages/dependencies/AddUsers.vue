@@ -56,9 +56,12 @@
                                           })">Gestionar horario
                                     </Link>
 
+                                    <button class="p-2 text-center bg-yellow-400 text-white mx-1 rounded"
+                                            @click="generateReport(dependency.id, user.id)">Descargar reporte
+                                    </button>
+
                                     <button class="p-2 text-center bg-red-600 text-white mx-1 rounded"
                                             @click="showConfirmDeleteModal(dependency.id, user.id)">Eliminar
-                                        de la dependencia
                                     </button>
 
                                 </td>
@@ -132,6 +135,51 @@ export default {
     },
 
     methods: {
+
+        generateReport: async function (dependencyId, userId) {
+            let {value: startDate, isStartDateDismissed} = await Swal.fire({
+                title: 'Por favor, selecciona la fecha de inicio',
+                html: '<input id="startDate" type="date" class="swal2-input">',
+                confirmButtonText: 'Seleccionar fecha',
+                cancelButtonText: 'Cancelar',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                allowEnterKey: true,
+                preConfirm: () => {
+                    return document.getElementById('startDate').value;
+                }
+            });
+            //User canceled, stop execution
+            if (isStartDateDismissed) {
+                return;
+            }
+
+            let {value: endDate, isEndDateDismissed} = await Swal.fire({
+                title: 'Por favor, selecciona la fecha de finalización',
+                html: '<input id="endDate" type="date" class="swal2-input">',
+                confirmButtonText: 'Seleccionar fecha',
+                cancelButtonText: 'Cancelar',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                allowEnterKey: true,
+                preConfirm: () => {
+                    return document.getElementById('endDate').value
+                }
+            });
+
+            //User canceled, stop execution
+
+            if (isEndDateDismissed) {
+                return;
+            }
+
+            window.open(route('downloadUserDependencyRecords', {
+                dependencyId,
+                userId
+            }) + `?startDate=${startDate}&endDate=${endDate}`);
+
+
+        },
         addUserToDependency: async function () {
 
             this.isLoading = true;

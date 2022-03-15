@@ -36,7 +36,7 @@
                             <tbody>
                             <tr v-for="dependency in dependencies">
                                 <td class="px-6 align-middle whitespace-nowrap p-4 text-left ">
-                                    {{ dependency.name }}
+                                    {{ dependency.name }} ({{ dependency.monitoring_type }})
                                 </td>
 
                                 <td class="px-6 align-middle whitespace-nowrap p-4 text-left ">
@@ -98,42 +98,86 @@ export default {
     methods: {
 
         openCreateUserModal: async function () {
-            const {value} = await Swal.fire({
-                showCancelButton: true,
-                cancelButtonText: 'Cancelar',
-                confirmButtonText: 'Crear dependencia',
-                title: 'Crear una nueva dependencia',
-                input: 'text',
-                inputLabel: 'Nombre de la dependencia',
-                inputPlaceholder: 'Ayudas educativas'
-            })
 
+            const dependencyName = await this.askForDependencyNameWithModal();
+            if (dependencyName === undefined) {
+                return;
+            }
 
-            if (value === undefined) {
+            const monitoringType = await this.askForMonitoringTypeWithModal();
+            if (monitoringType === undefined) {
+                return;
+            }
+            const monitorsFunctions = await this.askForMonitorsFunctionsWithModal();
+            if (monitorsFunctions === undefined) {
                 return;
             }
 
             //Conseguir URL
             let url = route('dependencies.store');
+
             //Información a enviar
             let data = {
-                name: value
+                name: dependencyName,
+                monitoringType,
+                monitorsFunctions
             }
 
             try {
-                let response = await axios.post(url, {
-                    name: value
-                });
-
+                let response = await axios.post(url, data);
                 let modal = await Swal.fire('Creación de dependencia', ' Dependencia creada exitosamente', 'success')
                 location.reload();
 
             } catch (e) {
                 //Disparar ventana con información del error
-                Swal.fire('Ha ocurrido un error', e.response.data, 'error')
+                Swal.fire('Ha ocurrido un error', e.response.data.message, 'error')
             }
 
 
+        },
+        askForDependencyNameWithModal: async function () {
+            const {value} = await Swal.fire({
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Confirmar nombre',
+                title: 'Crear una nueva dependencia',
+                input: 'text',
+                inputLabel: 'Nombre de la dependencia',
+                inputPlaceholder: 'Ayudas educativas'
+            });
+
+            return value;
+        },
+        askForMonitoringTypeWithModal: async function () {
+            const {value} = await Swal.fire({
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Confirmar tipo de monitoría',
+                title: '¿Que tipo de monitorías se prestan?',
+                input: 'select',
+                inputOptions: {
+                    'academica': 'Académicas',
+                    'administrativa': 'Administrativas',
+                },
+                inputLabel: 'Tipo de monitorías',
+                inputPlaceholder: 'Selecciona el tipo de monitorías',
+
+            });
+
+            return value;
+        },
+        askForMonitorsFunctionsWithModal: async function () {
+            const {value} = await Swal.fire({
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Guardar y crear dependencia',
+                title: 'Funciones de los monitores',
+                input: 'text',
+                inputLabel: '¿Que funciones desempeñan los monitores? (separadas por comas)',
+                inputPlaceholder: 'Organización de libros, prestamos, mantenimiento'
+            });
+
+            return value;
         },
 
         deleteDependency: async function (dependencyId) {

@@ -2,109 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\CSVToBrowser;
+use App\Http\Requests\DownloadUserDependencyRecordsRequest;
 use App\Models\Dependency;
 use App\Models\Record;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class RecordController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
 
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-
-    public function dailyDependencyRecords($dependencyId)
-    {
-        $today = Carbon::today();
-        $tomorrow = Carbon::tomorrow();
-        $records = Record::with('monitor')->where('dependency_id', '=', $dependencyId)
-            ->orderBy('start_planned_date', 'asc')
-            ->where('start_planned_date', '>=', $today)
-            ->where('start_planned_date', '<=', $tomorrow)
-            ->get();
-
-        return Inertia::render('records/DailyDependencyRecords', [
-            'records' => $records,
-            'today' => $today->toDateString()
-        ]);
-
-    }
 
     public function filterDependencyRecordsView($dependencyId)
     {
@@ -134,6 +46,65 @@ class RecordController extends Controller
         }
 
         return response()->json(['records' => $records], 200);
+    }
+
+
+    public function downloadUserDependencyRecords(Request $request, $dependencyId, $userId): \Illuminate\Http\Response
+    {
+        $records = DB::table('records')
+            ->select([
+                'start_planned_date',
+                'end_planned_date',
+                'start_monitor_date',
+                'end_monitor_date',
+                'start_approved_date',
+                'end_approved_date',
+            ])
+            ->where('dependency_id', '=', $dependencyId)
+            ->where('start_planned_date', '>=', $request->input('startDate'))
+            ->where('start_planned_date', '<=', $request->input('endDate'))
+            ->where('monitor_id', '=', $userId)
+            ->orderBy('start_planned_date', 'asc')
+            ->get();
+
+
+        //Verify if has values, if not, return error.
+        if (count($records) === 0) {
+            return response('No existen registros para el usuario y rango de fechas seleccionados', 404);
+        }
+
+        //Get monitor
+        $monitor = User::find($userId);
+        $userName = $monitor->name;
+
+        //Get dependency
+
+        $dependencyName = Dependency::find($dependencyId)->name;
+
+        //Count total worked minutes
+        $totalMinutes = 0;
+        foreach ($records as $record) {
+            //Verify that both times are presented.
+            if ($record->start_approved_date === null || $record->end_approved_date === null) {
+                //Abort execution for this cycle
+                continue;
+            }
+            //Count minutes.
+            //Create carbon objects
+            $startHour = new Carbon($record->start_approved_date);
+            $endHour = new Carbon($record->end_approved_date);
+
+            $passedMinutes = $startHour->diffInMinutes($endHour);
+            $totalMinutes += $passedMinutes;
+        }
+        $totalHours = $totalMinutes / 60;
+        $minutes = $totalMinutes % 60;
+        //Table headers
+        $header = ['Hora de Inicio', 'Hora de salida', 'Check In', 'Check Out', ' Hora de inicio (Supervisor)', 'Hora de salida (supervisor)'];
+
+        return Pdf::loadView('reports.generate', compact('records', 'userName', 'header', 'totalHours', 'dependencyName','minutes'))
+            ->stream('Reporte cronos.pdf');
+
     }
 
     public function updateSupervisorHour($recordId, Request $request)

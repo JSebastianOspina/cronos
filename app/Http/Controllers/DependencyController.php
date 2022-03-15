@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\GoogleCalendarApi;
 use App\Helpers\GoogleCalendarApiException;
+use App\Http\Requests\StoreDependencyRequest;
 use App\Models\Dependency;
 use App\Models\GoogleCalendar;
 use App\Models\User;
@@ -26,7 +27,7 @@ class DependencyController extends Controller
         } else {
             //If not, is supervisor, just show dependencies that it supervises.
             $dependencies = DB::table('dependency_user')
-                ->select(['dependencies.id', 'dependencies.name'])
+                ->select(['dependencies.id', 'dependencies.name','dependencies.monitoring_type'])
                 ->where('user_id', '=', $user->id)
                 ->where('role', '=', 1)
                 ->join('dependencies', 'dependencies.id', '=', 'dependency_user.dependency_id')
@@ -53,10 +54,12 @@ class DependencyController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreDependencyRequest $request)
     {
         Dependency::create([
-            'name' => $request->input('name')
+            'name' => $request->input('name'),
+            'monitoring_type' => $request->input('monitoringType'),
+            'monitors_functions' => $request->input('monitorsFunctions'),
         ]);
 
         return response('', 201);
@@ -132,25 +135,15 @@ class DependencyController extends Controller
         //Check if user belongs to the dependency
         $userCount = DB::table('dependency_user')
             ->where('user_id', '=', $request->input('userId'))
-            ->where('dependency_id', '=', $dependency->id)
             ->count();
 
         if ($userCount > 0) {
-            return response('El usuario ya pertenece a la dependencia. Si desea cambiar el rol, eliminelo y vuelvalo a agregar a la dependencia', 403);
-        }
-
-        //Get requested user
-        $user = User::find($request->input('userId'));
-
-        //Check if the user is already admin from another dependency
-
-        if ($request->input('roleId') == 1 && $user->getSupervisedDepencyId() !== null) {
-            return response('El usuario ya es supervisor de otra dependencia. Por favor, eliminelo de esa
-            dependencia y agréguelo a esta', 403);
-
+            return response('El usuario ya pertenece a otra dependencia. Si desea cambiar el rol, eliminelo y vuelvalo a agregar a la dependencia', 403);
         }
         //The request verification ends, proceed with the rest of the method.
 
+        //Get requested user
+        $user = User::find($request->input('userId'));
 
         //Create a calendar for the user
         $googleCalendarApi = new GoogleCalendarApi();

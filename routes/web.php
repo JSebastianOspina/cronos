@@ -69,11 +69,18 @@ Route::post('users/{user}/schedules', [\App\Http\Controllers\ScheduleController:
 Route::delete('schedules/{schedule}', [\App\Http\Controllers\ScheduleController::class, 'destroy'])->name('schedules.destroy')->middleware(['auth', 'isSupervisor']);
 
 /*-----------> Rutas de records <-------------*/
-Route::get('records/dependencies/{dependency}/daily', [\App\Http\Controllers\RecordController::class, 'dailyDependencyRecords'])->name('records.daily')->middleware(['auth', 'isSupervisor']);
+
+//Show filter dependency records view
 Route::get('records/dependencies/{dependency}', [\App\Http\Controllers\RecordController::class, 'filterDependencyRecordsView'])->name('records.filter')->middleware(['auth', 'isSupervisor']);
+//Json con records segun fechas
 Route::get('api/records/dependencies/{dependency}', [\App\Http\Controllers\RecordController::class, 'filterDependencyRecords'])->name('api.records.filter')->middleware(['auth', 'isSupervisor']);
+//Descargar records de usuario según dependencia
+Route::get('records/dependencies/{dependencyId}/user/{userId}/download', [\App\Http\Controllers\RecordController::class, 'downloadUserDependencyRecords'])->name('downloadUserDependencyRecords')->middleware(['auth','isSupervisor']);
+//Actualizar horas de administrador
 Route::patch('records/{record}', [\App\Http\Controllers\RecordController::class, 'updateSupervisorHour'])->name('records.updateSupervisorHour')->middleware(['auth', 'isSupervisor']);
+//Cancelar monitoria
 Route::post('records/{record}/cancelMonitorHours', [\App\Http\Controllers\RecordController::class, 'cancelMonitorHours'])->name('records.cancelMonitorHours')->middleware(['auth', 'isSupervisor']);
+//Añadir observación
 Route::post('records/{record}/observations', [\App\Http\Controllers\RecordController::class, 'makeObservation'])->name('records.observations.store')->middleware(['auth', 'isSupervisor']);
 
 
