@@ -15,62 +15,65 @@
                         <h1 class="text-3xl text-center font-semibold text-principal mb-3">Usuarios de la dependencia
                             {{ dependency.name }}</h1>
 
-                        <table class="items-center bg-transparent border-collapse mx-auto ">
-                            <thead>
-                            <tr>
-                                <th class="px-6 align-middle border border-solid py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Nombre
-                                </th>
-                                <th class="px-6 align-middle border border-solid py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Email
-                                </th>
-                                <th class="px-6 align-middle border border-solid py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Rol
-                                </th>
-                                <th class="px-6 align-middle border border-solid py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
-                                    Acciones
-                                </th>
+                        <div class="overflow-auto">
+                            <table class="items-center bg-transparent border-collapse mx-auto ">
+                                <thead>
+                                <tr>
+                                    <th class="px-6 align-middle border border-solid py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                        Nombre
+                                    </th>
+                                    <th class="px-6 align-middle border border-solid py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                        Email
+                                    </th>
+                                    <th class="px-6 align-middle border border-solid py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                        Rol
+                                    </th>
+                                    <th class="px-6 align-middle border border-solid py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+                                        Acciones
+                                    </th>
 
-                            </tr>
-                            </thead>
+                                </tr>
+                                </thead>
 
-                            <tbody>
-                            <tr v-for="user in users">
-                                <td class="px-6 align-middle whitespace-nowrap p-4 text-left ">
-                                    {{ user.name }}
-                                </td>
-                                <td class="px-6 align-middle whitespace-nowrap p-4 text-left ">
-                                    {{ user.email }}
-                                </td>
-                                <td class="px-6 align-middle whitespace-nowrap p-4 text-left ">
-                                    {{ user.pivot.role === 0 ? 'Monitor' : 'Supervisor' }}
-                                </td>
+                                <tbody>
+                                <tr v-for="user in users">
+                                    <td class="px-6 align-middle whitespace-nowrap p-4 text-left ">
+                                        {{ user.name }}
+                                    </td>
+                                    <td class="px-6 align-middle whitespace-nowrap p-4 text-left ">
+                                        {{ user.email }}
+                                    </td>
+                                    <td class="px-6 align-middle whitespace-nowrap p-4 text-left ">
+                                        {{ user.pivot.role === 0 ? 'Monitor' : 'Supervisor' }}
+                                    </td>
 
-                                <td class="px-6 align-middle whitespace-nowrap p-4 text-center ">
+                                    <td class="px-6 align-middle whitespace-nowrap p-4 text-center ">
 
-                                    <Link
-                                        class="px-2 py-2.5 text-center bg-principal text-white mx-1 rounded"
-                                        :href="route('users.schedules.show',{
+                                        <Link
+                                            class="px-2 py-2.5 text-center bg-principal text-white mx-1 rounded"
+                                            :href="route('users.schedules.show',{
                                               user: user.id,
                                               dependency:dependency.id
                                           })">Gestionar horario
-                                    </Link>
+                                        </Link>
 
-                                    <button class="p-2 text-center bg-yellow-400 text-white mx-1 rounded"
-                                            @click="generateReport(dependency.id, user.id)">Descargar reporte
-                                    </button>
+                                        <button class="p-2 text-center bg-yellow-400 text-white mx-1 rounded"
+                                                @click="generateReport(dependency.id, user.id)">Descargar reporte
+                                        </button>
 
-                                    <button class="p-2 text-center bg-red-600 text-white mx-1 rounded"
-                                            @click="showConfirmDeleteModal(dependency.id, user.id)">Eliminar
-                                    </button>
+                                        <button class="p-2 text-center bg-red-600 text-white mx-1 rounded"
+                                                @click="showConfirmDeleteModal(dependency.id, user.id)">Eliminar
+                                        </button>
 
-                                </td>
+                                    </td>
 
-                            </tr>
+                                </tr>
 
-                            </tbody>
+                                </tbody>
 
-                        </table>
+                            </table>
+
+                        </div>
 
                         <div class="grid grid-cols-1 mt-8">
 
@@ -79,7 +82,6 @@
                                 <h2 class="text-xl font-bold text-principal mb-3">Añadir un nuevo
                                     usuario
                                 </h2>
-
 
                                 <label class="text-gray-600 text-lg" for="user">Selecciona un usuario para añadirlo
                                     a la
