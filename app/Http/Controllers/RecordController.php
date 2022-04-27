@@ -112,17 +112,19 @@ class RecordController extends Controller
         //Prepare variables
         $hour = $request->input('hour');
         $type = $request->input('type');
-        $now = Carbon::today();
-        $now->setTimeFromTimeString($hour);
 
         //Find record
-        $record = Record::find($recordId);
+        $record = Record::findOrFail($recordId);
+
+        $date = Carbon::parse($record->start_planned_date);
+        $date->setTimeFromTimeString($hour);
+
         //Assign to start or end approved date
         if ($type === 'start') {
-            $record->start_approved_date = $now->toDateTimeString();
+            $record->start_approved_date = $date->toDateTimeString();
         }
         if ($type === 'end') {
-            $record->end_approved_date = $now->toDateTimeString();
+            $record->end_approved_date = $date->toDateTimeString();
         }
 
         //Check if supervisor register both hours
