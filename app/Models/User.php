@@ -102,6 +102,17 @@ class User extends Authenticatable
         return $this->belongsToMany(Dependency::class)->withPivot('role');
     }
 
+    public function getAssociatedDependency()
+    {
+        $dependency = DB::table('dependency_user')
+            ->select(['dependencies.id','dependencies.name'])
+            ->where('role', '=', 0)
+            ->where('user_id', '=', $this->id)
+            ->join('dependencies', 'dependencies.id', '=', 'dependency_user.dependency_id')
+            ->first();
+        return $dependency;
+    }
+
     public function getSupervisedDepencyId()
     {
         $supervisorRoleId = 1;

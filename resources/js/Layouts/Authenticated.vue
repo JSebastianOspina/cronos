@@ -46,6 +46,13 @@
                                 </BreezeNavLink>
                             </div>
 
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex ">
+                                <BreezeNavLink
+                                    as="button" type="button"
+                                    @click="generateReport($page.props.auth.dependency.id,$page.props.auth.user.id)">
+                                    Generar Reporte
+                                </BreezeNavLink>
+                            </div>
 
                         </div>
 
@@ -77,7 +84,6 @@
                                             class="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">
                                             Cerrar sesión
                                         </button>
-
 
                                     </template>
                                 </BreezeDropdown>
@@ -121,6 +127,14 @@
                         </BreezeResponsiveNavLink>
                     </div>
 
+                    <div class="pt-2 pb-3 space-y-1">
+                        <BreezeResponsiveNavLink :as="'button'"
+                                                 @click="generateReport($page.props.auth.dependency.id,$page.props.auth.user.id)"
+                        >
+                            Generar Reporte
+                        </BreezeResponsiveNavLink>
+                    </div>
+
 
                     <!-- Responsive Settings Options -->
                     <div class="pt-4 pb-1 border-t border-gray-200">
@@ -161,6 +175,7 @@ import BreezeDropdownLink from '@/Components/DropdownLink.vue'
 import BreezeNavLink from '@/Components/NavLink.vue'
 import BreezeResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
 import {Link} from '@inertiajs/inertia-vue3';
+import Swal from "sweetalert2";
 
 export default {
     components: {
@@ -180,10 +195,52 @@ export default {
 
     methods: {
 
+        async generateReport(dependencyId, userId) {
+            console.log(dependencyId);
+            let {value: startDate, isStartDateDismissed} = await Swal.fire({
+                title: 'Por favor, selecciona la fecha de inicio',
+                html: '<input id="startDate" type="date" class="swal2-input">',
+                confirmButtonText: 'Seleccionar fecha',
+                cancelButtonText: 'Cancelar',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                allowEnterKey: true,
+                preConfirm: () => {
+                    return document.getElementById('startDate').value;
+                }
+            });
+            //User canceled, stop execution
+            if (isStartDateDismissed) {
+                return;
+            }
+
+            let {value: endDate, isEndDateDismissed} = await Swal.fire({
+                title: 'Por favor, selecciona la fecha de finalización',
+                html: '<input id="endDate" type="date" class="swal2-input">',
+                confirmButtonText: 'Seleccionar fecha',
+                cancelButtonText: 'Cancelar',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                allowEnterKey: true,
+                preConfirm: () => {
+                    return document.getElementById('endDate').value
+                }
+            });
+
+            //User canceled, stop execution
+            if (isEndDateDismissed) {
+                return;
+            }
+
+            window.open(route('downloadUserDependencyRecords', {
+                dependencyId,
+                userId
+            }) + `?startDate=${startDate}&endDate=${endDate}`);
+
+        },
         async logout() {
             let url = route('logout');
             await axios.post(url, {maxRedirects: 0});
-
             location.reload();
         },
 

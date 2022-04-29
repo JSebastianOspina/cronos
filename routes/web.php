@@ -75,7 +75,7 @@ Route::get('records/dependencies/{dependency}', [\App\Http\Controllers\RecordCon
 //Json con records segun fechas
 Route::get('api/records/dependencies/{dependency}', [\App\Http\Controllers\RecordController::class, 'filterDependencyRecords'])->name('api.records.filter')->middleware(['auth', 'isSupervisor']);
 //Descargar records de usuario según dependencia
-Route::get('records/dependencies/{dependencyId}/user/{userId}/download', [\App\Http\Controllers\RecordController::class, 'downloadUserDependencyRecords'])->name('downloadUserDependencyRecords')->middleware(['auth','isSupervisor']);
+Route::get('records/dependencies/{dependencyId}/user/{userId}/download', [\App\Http\Controllers\RecordController::class, 'downloadUserDependencyRecords'])->name('downloadUserDependencyRecords')->middleware(['auth']);
 //Actualizar horas de administrador
 Route::patch('records/{record}', [\App\Http\Controllers\RecordController::class, 'updateSupervisorHour'])->name('records.updateSupervisorHour')->middleware(['auth', 'isSupervisor']);
 //Cancelar monitoria
@@ -98,13 +98,14 @@ Route::post('api/makeCheckInOrCheckout', [\App\Http\Controllers\RecordController
 // Vista para desplegar info del api (monitorias activas)
 Route::get('check', [\App\Http\Controllers\RecordController::class, 'showCheckInOutView'])->name('check.showCheckInOutView')->middleware(['auth']);
 
-
 /*-----------> Rutas de monitores <-------------*/
 
 // API, Obtener calendarios monitor (JSON)
 Route::get('api/monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorController::class, 'getUserCalendars'])->name('api.monitors.getUserCalendars')->middleware(['auth']);
 //Vista calendarios monitor (enlace de calendar)
 Route::get('monitors/{monitor}/calendars', [\App\Http\Controllers\MonitorController::class, 'showUserCalendars'])->name('monitors.calendars')->middleware(['auth']);
+
+/*-----------> Rutas de monitores <-------------*/
 
 
 /*---------------------------------  ACABA RUTAS ROL USUARIO ----------------------------*/

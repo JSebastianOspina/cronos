@@ -51,6 +51,12 @@ class RecordController extends Controller
 
     public function downloadUserDependencyRecords(Request $request, $dependencyId, $userId): \Illuminate\Http\Response
     {
+
+        //If is not supervisor and the user id doesn't match, show error
+        if (!(auth()->user()->isSupervisor()) && ($userId != auth()->user()->id)) {
+            return response('No tienes permisos para realizar esta acción', 401);
+        }
+
         $records = DB::table('records')
             ->select([
                 'start_planned_date',
@@ -102,7 +108,7 @@ class RecordController extends Controller
         //Table headers
         $header = ['Hora de Inicio', 'Hora de salida', 'Check In', 'Check Out', ' Hora de inicio (Supervisor)', 'Hora de salida (supervisor)'];
 
-        return Pdf::loadView('reports.generate', compact('records', 'userName', 'header', 'totalHours', 'dependencyName','minutes'))
+        return Pdf::loadView('reports.generate', compact('records', 'userName', 'header', 'totalHours', 'dependencyName', 'minutes'))
             ->stream('Reporte cronos.pdf');
 
     }

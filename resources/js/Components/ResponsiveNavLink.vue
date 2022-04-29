@@ -1,5 +1,5 @@
 <template>
-    <Link :href="href" :class="classes">
+    <Link :href="href" :class="classes" :as="as">
         <slot />
     </Link>
 </template>
@@ -12,7 +12,7 @@ export default {
         Link,
     },
 
-    props: ['href', 'active'],
+    props: ['href', 'active','as'],
 
     computed: {
         classes() {
