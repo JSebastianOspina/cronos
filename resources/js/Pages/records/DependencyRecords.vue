@@ -485,8 +485,6 @@ export default {
         getDateFromDateTime(dateTime) {
             return dateTime.substr(0, 10);
         },
-
-
         async updateSupervisorHour(recordId, typeOfHour, value) {
             let url = route('records.updateSupervisorHour', {record: recordId});
             let request = await axios.patch(url, {

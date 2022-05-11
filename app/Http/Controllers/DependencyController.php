@@ -37,9 +37,7 @@ class DependencyController extends Controller
                 $dependency->users = DB::table('dependency_user')
                     ->where('dependency_id', '=', $dependency->id)->get();
             }
-
         }
-
 
         return Inertia::render('dependencies/Index', [
             'isAdmin' => auth()->user()->isAdmin(),
@@ -65,39 +63,6 @@ class DependencyController extends Controller
         return response('', 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -108,7 +73,6 @@ class DependencyController extends Controller
     public function destroy($id)
     {
         Dependency::destroy($id);
-
         return response('Dependencia borrada exitosamente', 200);
     }
 

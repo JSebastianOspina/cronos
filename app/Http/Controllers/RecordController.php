@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\CSVToBrowser;
-use App\Http\Requests\DownloadUserDependencyRecordsRequest;
 use App\Models\Dependency;
 use App\Models\Record;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
+/**
+ *
+ */
 class RecordController extends Controller
 {
-
-
+    /**
+     * @param $dependencyId
+     * @return \Inertia\Response|string
+     */
     public function filterDependencyRecordsView($dependencyId)
     {
         $dependency = Dependency::find($dependencyId);
@@ -31,7 +36,12 @@ class RecordController extends Controller
 
     }
 
-    public function filterDependencyRecords($dependencyId, Request $request)
+    /**
+     * @param $dependencyId
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function filterDependencyRecords($dependencyId, Request $request): JsonResponse
     {
 
         $records = Record::with('monitor')->where('dependency_id', '=', $dependencyId)
@@ -49,7 +59,13 @@ class RecordController extends Controller
     }
 
 
-    public function downloadUserDependencyRecords(Request $request, $dependencyId, $userId): \Illuminate\Http\Response
+    /**
+     * @param Request $request
+     * @param $dependencyId
+     * @param $userId
+     * @return Response
+     */
+    public function downloadUserDependencyRecords(Request $request, $dependencyId, $userId): Response
     {
 
         //If is not supervisor and the user id doesn't match, show error
@@ -72,8 +88,7 @@ class RecordController extends Controller
             ->where('monitor_id', '=', $userId)
             ->orderBy('start_planned_date', 'asc')
             ->get();
-
-
+        
         //Verify if has values, if not, return error.
         if (count($records) === 0) {
             return response('No existen registros para el usuario y rango de fechas seleccionados', 404);
@@ -84,7 +99,6 @@ class RecordController extends Controller
         $userName = $monitor->name;
 
         //Get dependency
-
         $dependencyName = Dependency::find($dependencyId)->name;
 
         //Count total worked minutes
@@ -113,7 +127,12 @@ class RecordController extends Controller
 
     }
 
-    public function updateSupervisorHour($recordId, Request $request)
+    /**
+     * @param $recordId
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateSupervisorHour($recordId, Request $request): JsonResponse
     {
         //Prepare variables
         $hour = $request->input('hour');
@@ -144,11 +163,15 @@ class RecordController extends Controller
 
         //Save everything
         $record->save();
-
         return response()->json(['msg' => 'Se ha actualizado correctamente la hora del registro'], 200);
 
     }
 
+    /**
+     * @param $recordId
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function makeObservation($recordId, Request $request)
     {
         $request->validate([
@@ -162,7 +185,12 @@ class RecordController extends Controller
 
     }
 
-    public function cancelMonitorHours($recordId, Request $request)
+    /**
+     * @param $recordId
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function cancelMonitorHours($recordId, Request $request): JsonResponse
     {
         $request->validate([
             'observation' => 'required|string'
@@ -179,6 +207,12 @@ class RecordController extends Controller
 
     }
 
+    /**
+     * @param $record
+     * @param $message
+     * @param $status
+     * @return void
+     */
     private function updateRecordObservation(&$record, $message, $status)
     {
         //Generate observation model
@@ -197,11 +231,18 @@ class RecordController extends Controller
         }
     }
 
-    public function showCheckInOutView()
+    /**
+     * @return \Inertia\Response
+     */
+    public function showCheckInOutView(): \Inertia\Response
     {
         return Inertia::render('checks/InOut');
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function getActiveRecords(Request $request)
     {
         $records = Record::getUserActiveRecords();
@@ -213,7 +254,11 @@ class RecordController extends Controller
         return response()->json($records);
     }
 
-    public function makeCheckInOrCheckout(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function makeCheckInOrCheckout(Request $request): JsonResponse
     {
         $recordId = $request->input('recordId');
         $record = Record::find($recordId);
@@ -242,6 +287,9 @@ class RecordController extends Controller
 
     }
 
+    /**
+     * @return string
+     */
     public static function createPeriodicRecords(): string
     {
         $now = Carbon::now();
@@ -272,7 +320,6 @@ class RecordController extends Controller
         }
 
         Log::info('Se han creado ' . $counter . ' records. Proceso realizado el ' . Carbon::now()->toDateTimeString());
-
         return 'Se han creado ' . $counter . ' records. Proceso realizado el ' . Carbon::now()->toDateTimeString();
     }
 }

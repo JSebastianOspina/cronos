@@ -84,7 +84,7 @@
         y {{$records[count($records)-1]->start_planned_date}}.
     </p>
     <p>
-        Durante este periodo, {{$userName}} realizó: {{number_format($totalHours,0)}} horas y {{$minutes}} minutos.
+        Durante este periodo, {{$userName}} realizó: {{intval($totalHours,0)}} horas y {{$minutes}} minutos.
     </p>
     <p>
         Este reporte ha sido generado por cronos el {{new \Carbon\Carbon()}}.

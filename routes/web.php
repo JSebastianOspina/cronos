@@ -18,7 +18,6 @@ use Laravel\Socialite\Facades\Socialite;
 
 Route::get('/', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'handleRoleRedirect'])->middleware(['auth'])->name('index');
 
-
 //Ruta general para capturar errores
 Route::inertia('error', 'Error')->name('error');
 
